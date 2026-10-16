@@ -1,0 +1,44 @@
+# NutriGuide AI — gitignore
+
+# Environment
+.env
+*.env.local
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+*.so
+venv/
+.venv/
+env/
+
+# Model weights (large files)
+models/*.pth
+models/*.pt
+models/*.pkl
+datasets/
+
+# Node / Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.DS_Store
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
