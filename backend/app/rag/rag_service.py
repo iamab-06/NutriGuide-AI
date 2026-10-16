@@ -149,24 +149,40 @@ class RAGService:
             self._init_error = str(e)
             logger.error(f"RAG initialization failed: {e}")
 
+    def _fallback_retrieve(self, query: str, k: int = 3) -> List[str]:
+        """Keyword and topic-based fallback retrieval when vector search is unavailable."""
+        query_tokens = set(query.lower().replace("?", "").replace(",", "").replace(".", "").split())
+        scored_docs = []
+        for doc in self.documents:
+            score = 0
+            topic_tokens = set(doc["topic"].lower().split())
+            text_tokens = set(doc["text"].lower().split())
+            score += len(query_tokens.intersection(topic_tokens)) * 4
+            score += len(query_tokens.intersection(text_tokens)) * 1
+            if score > 0:
+                scored_docs.append((score, doc["text"]))
+        scored_docs.sort(key=lambda x: x[0], reverse=True)
+        return [doc_text for _, doc_text in scored_docs[:k]]
+
     def retrieve(self, query: str, k: int = 3) -> List[str]:
         """Retrieve top-k relevant documents for the query."""
         if not self._initialized:
             self.initialize()
-        if not self._initialized:
-            logger.warning("RAG not available, returning empty context.")
-            return []
-        try:
-            query_embedding = self.encoder.encode([query]).astype(np.float32)
-            distances, indices = self.index.search(query_embedding, k)
-            results = []
-            for i, idx in enumerate(indices[0]):
-                if idx < len(self.documents) and distances[0][i] < 2.0:
-                    results.append(self.documents[idx]["text"])
-            return results
-        except Exception as e:
-            logger.error(f"RAG retrieval error: {e}")
-            return []
+        if self._initialized and self.index is not None and hasattr(self, "encoder"):
+            try:
+                query_embedding = self.encoder.encode([query]).astype(np.float32)
+                distances, indices = self.index.search(query_embedding, k)
+                results = []
+                for i, idx in enumerate(indices[0]):
+                    if idx < len(self.documents) and distances[0][i] < 2.0:
+                        results.append(self.documents[idx]["text"])
+                if results:
+                    return results
+            except Exception as e:
+                logger.error(f"RAG vector retrieval error: {e}")
+
+        # Seamless fallback
+        return self._fallback_retrieve(query, k)
 
     def get_context_string(self, query: str, k: int = 3) -> str:
         """Get retrieved context as a formatted string."""

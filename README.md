@@ -97,12 +97,35 @@ nutriguide-ai/
 - The classifier recognizes only 20 food categories from Food-101
 - Nutritional values come from USDA and are retrieved per 100g
 - Allergen absence in Open Food Facts does NOT confirm allergen-free status
-- The AI assistant never invents nutritional values — it uses only retrieved data
-- This application does not provide medical or dietary advice
+## Academic Documentation Package
 
-## Evaluation Criteria
+Detailed engineering and academic documentation is available in the `docs/` folder:
 
-See `docs/evaluation.md` for the complete evaluation checklist and test results.
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md): Full system architecture, tier responsibilities, and Mermaid sequence diagrams.
+- [`docs/PROJECT_LOG.md`](docs/PROJECT_LOG.md): Engineering timeline, file inventory, bug tracking, and design decisions.
+- [`docs/EVALUATION.md`](docs/EVALUATION.md): Quantitative benchmark report covering all 10 faculty evaluation criteria.
+- [`docs/REPORT_NOTES.md`](docs/REPORT_NOTES.md): Complete sections for the academic final project report (Abstract, Methodology, Discussion).
+- [`docs/PRESENTATION_OUTLINE.md`](docs/PRESENTATION_OUTLINE.md): 14-slide outline structured for final project defense and viva.
+
+## Verification & Testing
+
+Run all automated unit and integration tests:
+```bash
+cd backend
+python -m pytest -v
+```
+
+Run empirical benchmark suite:
+```bash
+cd backend
+python tests/benchmark.py
+```
+
+Run complete end-to-end user journeys (A through F):
+```bash
+cd backend
+python tests/verify_end_to_end.py
+```
 
 ## Academic Context
 
@@ -110,3 +133,4 @@ See `docs/evaluation.md` for the complete evaluation checklist and test results.
 **Institution:** Siddaganga Institute of Technology  
 **Deadline:** October 30, 2026  
 **Project Type:** AI/ML Capstone — Multimodal Generative AI Application
+

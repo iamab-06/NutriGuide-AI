@@ -5,7 +5,7 @@ import logging
 from typing import Optional, Dict, Any, List
 import httpx
 from app.core.config import settings
-from app.core.categories import USDA_SEARCH_QUERIES, CATEGORY_DISPLAY_NAMES
+from app.core.categories import USDA_SEARCH_QUERIES, CATEGORY_DISPLAY_NAMES, USDA_REFERENCE_DATA
 from app.schemas.food import NutritionData, NutrientInfo, FoodSearchResult
 
 logger = logging.getLogger(__name__)
@@ -58,7 +58,7 @@ async def search_food(query: str, page_size: int = 5) -> List[FoodSearchResult]:
     """Search USDA FoodData Central for foods matching query."""
     params = {
         "query": query,
-        "dataType": "Foundation,SR Legacy,Survey (FNDDS)",
+        "dataType": ["Foundation", "SR Legacy"],
         "pageSize": page_size,
         "api_key": settings.usda_api_key,
     }
@@ -115,22 +115,51 @@ async def get_nutrition_for_food(food_name: str, category_key: Optional[str] = N
         query = food_name
 
     results = await search_food(query, page_size=3)
-    if not results:
-        logger.warning(f"No USDA results for query: {query}")
+    best = results[0] if results else None
+    food_detail = await get_nutrition_by_fdcid(best.fdcId) if best else None
+
+    # Fallback to verified USDA reference dataset if live API is unavailable or rate-limited
+    if not food_detail:
+        lookup_key = category_key if category_key in USDA_REFERENCE_DATA else None
+        if not lookup_key:
+            for k in USDA_REFERENCE_DATA:
+                if k in food_name.lower().replace(" ", "_") or food_name.lower() in k:
+                    lookup_key = k
+                    break
+
+        if lookup_key and lookup_key in USDA_REFERENCE_DATA:
+            ref = USDA_REFERENCE_DATA[lookup_key]
+            logger.info(f"Using USDA Reference Data fallback for '{food_name}' ({lookup_key})")
+            nutrient_list = []
+            for k, val in ref.items():
+                if k in NUTRIENT_UNITS and val is not None:
+                    nutrient_list.append(NutrientInfo(
+                        name=k.replace("_", " ").title(),
+                        amount=round(float(val), 2),
+                        unit=NUTRIENT_UNITS.get(k, ""),
+                    ))
+            return NutritionData(
+                food_name=ref["food_name"],
+                fdcId=ref["fdcId"],
+                source="USDA FoodData Central (Standard Reference)",
+                basis="per 100g",
+                calories=ref.get("calories"),
+                protein=ref.get("protein"),
+                carbohydrates=ref.get("carbohydrates"),
+                fat=ref.get("fat"),
+                sugar=ref.get("sugar"),
+                fiber=ref.get("fiber"),
+                sodium=ref.get("sodium"),
+                cholesterol=ref.get("cholesterol"),
+                saturated_fat=ref.get("saturated_fat"),
+                nutrients=nutrient_list,
+                data_available=True,
+            )
+
         return NutritionData(
             food_name=food_name,
             data_available=False,
             notes=f"No nutrition data found for '{food_name}' in USDA FoodData Central."
-        )
-
-    # Use the first result
-    best = results[0]
-    food_detail = await get_nutrition_by_fdcid(best.fdcId)
-    if not food_detail:
-        return NutritionData(
-            food_name=food_name,
-            data_available=False,
-            notes="Could not retrieve detailed nutrition data."
         )
 
     nutrients = _extract_nutrients(food_detail)
