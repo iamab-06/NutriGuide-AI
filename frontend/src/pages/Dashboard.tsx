@@ -1,53 +1,43 @@
 import { useNavigate } from 'react-router-dom'
-import { Camera, Search, BarChart3, ShieldAlert, MessageSquare, GitCompare, Leaf, Zap, TrendingUp } from 'lucide-react'
+import { Camera, Search, BarChart3, ShieldAlert, MessageSquare, GitCompare, Leaf } from 'lucide-react'
 
 const features = [
   {
     icon: Camera,
     title: 'Food Recognition',
-    description: 'Upload a food photo and our MobileNetV3 AI instantly identifies it from 20 categories.',
-    color: 'from-green-500 to-emerald-600',
-    bg: 'bg-green-50',
+    description: 'Upload a food photo and our MobileNetV3 AI identifies it. Gemma 3 vision fallback supports any food beyond trained categories.',
     path: '/analyze',
   },
   {
     icon: BarChart3,
     title: 'Nutrition Analysis',
     description: 'Get detailed nutritional data from USDA FoodData Central — calories, protein, carbs, and more.',
-    color: 'from-blue-500 to-blue-600',
-    bg: 'bg-blue-50',
     path: '/nutrition',
   },
   {
     icon: ShieldAlert,
     title: 'Allergen Awareness',
     description: 'Search packaged products for ingredient lists and declared allergen information via Open Food Facts.',
-    color: 'from-orange-500 to-orange-600',
-    bg: 'bg-orange-50',
     path: '/ingredients',
   },
   {
     icon: MessageSquare,
     title: 'AI Nutrition Assistant',
-    description: 'Ask questions about any food. Our Gemini-powered assistant uses RAG to give evidence-grounded answers.',
-    color: 'from-purple-500 to-purple-600',
-    bg: 'bg-purple-50',
+    description: 'Ask questions about any food. Our Gemma 3-powered assistant uses RAG to give evidence-grounded answers.',
     path: '/assistant',
   },
   {
     icon: GitCompare,
     title: 'Food Comparison',
     description: 'Compare two foods side-by-side on a per-100g basis with AI-generated nutritional insights.',
-    color: 'from-teal-500 to-teal-600',
-    bg: 'bg-teal-50',
     path: '/compare',
   },
 ]
 
 const stats = [
-  { icon: Leaf, label: 'Food Categories', value: '20', sub: 'AI-recognized' },
-  { icon: Zap, label: 'Data Source', value: 'USDA', sub: 'FoodData Central' },
-  { icon: TrendingUp, label: 'AI Model', value: 'Gemini', sub: '+ RAG Pipeline' },
+  { label: 'Food Categories', value: '101+', sub: 'AI-recognized' },
+  { label: 'Data Source', value: 'USDA', sub: 'FoodData Central' },
+  { label: 'AI Model', value: 'Gemma 3 4B', sub: '+ RAG Pipeline' },
 ]
 
 export default function Dashboard() {
@@ -95,15 +85,17 @@ export default function Dashboard() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
-        {stats.map(({ icon: Icon, label, value, sub }) => (
-          <div key={label} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 text-center">
-            <div className="w-10 h-10 rounded-xl bg-[#e8f4ed] flex items-center justify-center mx-auto mb-3">
-              <Icon className="w-5 h-5 text-[#2d6a4f]" />
-            </div>
-            <p className="text-2xl font-bold text-gray-900">{value}</p>
-            <p className="text-xs text-gray-500 mt-0.5">{label}</p>
-            <p className="text-xs text-[#2d6a4f] font-medium">{sub}</p>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        {stats.map(({ label, value, sub }) => (
+          <div
+            key={label}
+            className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 text-center flex flex-col items-center justify-center hover:border-[#52b788]/30 transition-all"
+          >
+            <p className="text-3xl font-bold text-gray-900 tracking-tight">{value}</p>
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-1">{label}</p>
+            <span className="inline-block mt-2 px-2.5 py-0.5 bg-[#e8f4ed] text-[#2d6a4f] text-xs font-semibold rounded-full">
+              {sub}
+            </span>
           </div>
         ))}
       </div>
@@ -111,31 +103,24 @@ export default function Dashboard() {
       {/* Features */}
       <h2 className="text-xl font-bold text-gray-900 mb-4">Features</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {features.map(({ icon: Icon, title, description, color, bg, path }) => (
+        {features.map(({ icon: Icon, title, description, path }) => (
           <button
             key={title}
             onClick={() => navigate(path)}
-            className="text-left bg-white rounded-2xl border border-gray-100 shadow-sm p-6 hover:shadow-md hover:border-[#b7e4c7] transition-all group"
+            className="text-left bg-white rounded-2xl border border-gray-100 shadow-sm p-6 hover:shadow-md hover:border-[#52b788]/50 transition-all group flex flex-col justify-between"
           >
-            <div className={`w-12 h-12 rounded-xl ${bg} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-              <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${color} flex items-center justify-center`}>
-                <Icon className="w-4 h-4 text-white" />
+            <div>
+              <div className="w-11 h-11 rounded-xl bg-[#e8f4ed] text-[#2d6a4f] flex items-center justify-center mb-4 group-hover:bg-[#2d6a4f] group-hover:text-white transition-colors duration-200">
+                <Icon className="w-5 h-5 transition-colors" />
               </div>
+              <h3 className="font-bold text-gray-900 mb-2 group-hover:text-[#2d6a4f] transition-colors">{title}</h3>
+              <p className="text-sm text-gray-500 leading-relaxed">{description}</p>
             </div>
-            <h3 className="font-bold text-gray-900 mb-2">{title}</h3>
-            <p className="text-sm text-gray-500 leading-relaxed">{description}</p>
+            <div className="mt-5 pt-3 border-t border-gray-50 flex items-center text-xs font-semibold text-[#2d6a4f]">
+              <span className="group-hover:translate-x-0.5 transition-transform">Explore feature &rarr;</span>
+            </div>
           </button>
         ))}
-      </div>
-
-      {/* Disclaimer */}
-      <div className="mt-8 bg-amber-50 border border-amber-200 rounded-2xl p-4">
-        <p className="text-xs text-amber-700">
-          <strong>Academic Project Notice:</strong> NutriGuide AI is a Computer Science academic project
-          built at Siddaganga Institute of Technology. Nutritional data comes from USDA FoodData Central
-          and Open Food Facts. This application does not provide medical or dietary advice.
-          Always consult a qualified professional for health-related decisions.
-        </p>
       </div>
     </div>
   )

@@ -2,7 +2,7 @@
 import logging
 from fastapi import APIRouter, HTTPException
 from app.services.nutrition import get_nutrition_for_food
-from app.services.gemini_service import chat_with_context
+from app.services.ollama_service import chat_with_context
 from app.schemas.food import CompareRequest, CompareResponse, NutritionData
 
 logger = logging.getLogger(__name__)
@@ -35,24 +35,41 @@ def _make_comparison_prompt(food1: NutritionData, food2: NutritionData) -> str:
 @router.post("/compare", response_model=CompareResponse)
 async def compare_foods(request: CompareRequest):
     """Compare nutrition data for two foods."""
-    if not request.food1.strip() or not request.food2.strip():
+    f1 = request.food1.strip()
+    f2 = request.food2.strip()
+    if not f1 or not f2:
         raise HTTPException(status_code=400, detail="Both food names are required.")
+    if len(f1) > 100 or len(f2) > 100:
+        raise HTTPException(status_code=400, detail="Food names must not exceed 100 characters.")
+
+    # Fast path: identical food selection
+    if f1.lower() == f2.lower():
+        food_data = await get_nutrition_for_food(f1)
+        if food_data is None:
+            raise HTTPException(status_code=404, detail=f"No data found for '{f1}'.")
+        return CompareResponse(
+            food1=food_data,
+            food2=food_data,
+            basis="per 100g",
+            comparison_notes=f"Both items are identical ('{food_data.food_name}'). All nutritional values are equal.",
+            ai_summary=f"Both selections refer to the same food item: {food_data.food_name}. All nutritional values per 100g are identical.",
+        )
 
     # Fetch nutrition for both foods in parallel
     import asyncio
     try:
         food1_data, food2_data = await asyncio.gather(
-            get_nutrition_for_food(request.food1),
-            get_nutrition_for_food(request.food2),
+            get_nutrition_for_food(f1),
+            get_nutrition_for_food(f2),
         )
     except Exception as e:
         logger.error(f"Comparison nutrition fetch error: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve nutrition data for comparison.")
 
     if food1_data is None:
-        raise HTTPException(status_code=404, detail=f"No data found for '{request.food1}'.")
+        raise HTTPException(status_code=404, detail=f"No data found for '{f1}'.")
     if food2_data is None:
-        raise HTTPException(status_code=404, detail=f"No data found for '{request.food2}'.")
+        raise HTTPException(status_code=404, detail=f"No data found for '{f2}'.")
 
     # Generate AI comparison summary
     ai_summary = None

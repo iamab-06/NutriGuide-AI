@@ -1,0 +1,204 @@
+{
+  "model_architecture": "MobileNetV3-Large",
+  "checkpoint_path": "models\\nutriguide_classifier.pth",
+  "dataset": "Food-101 (20 NutriGuide Categories)",
+  "train_samples": 15000,
+  "val_samples": 5000,
+  "final_top1_accuracy": 90.64,
+  "final_top3_accuracy": 97.82,
+  "epochs_trained": 10,
+  "per_class_accuracy": {
+    "apple_pie": {
+      "correct": 199,
+      "total": 250,
+      "accuracy_pct": 79.6
+    },
+    "caesar_salad": {
+      "correct": 239,
+      "total": 250,
+      "accuracy_pct": 95.6
+    },
+    "chicken_curry": {
+      "correct": 224,
+      "total": 250,
+      "accuracy_pct": 89.6
+    },
+    "chocolate_cake": {
+      "correct": 227,
+      "total": 250,
+      "accuracy_pct": 90.8
+    },
+    "donuts": {
+      "correct": 229,
+      "total": 250,
+      "accuracy_pct": 91.6
+    },
+    "french_fries": {
+      "correct": 243,
+      "total": 250,
+      "accuracy_pct": 97.2
+    },
+    "fried_rice": {
+      "correct": 230,
+      "total": 250,
+      "accuracy_pct": 92.0
+    },
+    "hamburger": {
+      "correct": 218,
+      "total": 250,
+      "accuracy_pct": 87.2
+    },
+    "hot_dog": {
+      "correct": 225,
+      "total": 250,
+      "accuracy_pct": 90.0
+    },
+    "ice_cream": {
+      "correct": 220,
+      "total": 250,
+      "accuracy_pct": 88.0
+    },
+    "omelette": {
+      "correct": 212,
+      "total": 250,
+      "accuracy_pct": 84.8
+    },
+    "pancakes": {
+      "correct": 229,
+      "total": 250,
+      "accuracy_pct": 91.6
+    },
+    "pizza": {
+      "correct": 238,
+      "total": 250,
+      "accuracy_pct": 95.2
+    },
+    "ramen": {
+      "correct": 235,
+      "total": 250,
+      "accuracy_pct": 94.0
+    },
+    "samosa": {
+      "correct": 218,
+      "total": 250,
+      "accuracy_pct": 87.2
+    },
+    "spaghetti_bolognese": {
+      "correct": 239,
+      "total": 250,
+      "accuracy_pct": 95.6
+    },
+    "spring_rolls": {
+      "correct": 211,
+      "total": 250,
+      "accuracy_pct": 84.4
+    },
+    "steak": {
+      "correct": 234,
+      "total": 250,
+      "accuracy_pct": 93.6
+    },
+    "sushi": {
+      "correct": 228,
+      "total": 250,
+      "accuracy_pct": 91.2
+    },
+    "waffles": {
+      "correct": 234,
+      "total": 250,
+      "accuracy_pct": 93.6
+    }
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "phase": "warmup",
+      "train_loss": 1.2843,
+      "train_acc": 62.77,
+      "val_loss": 0.7028,
+      "val_top1": 79.02,
+      "val_top3": 92.84
+    },
+    {
+      "epoch": 2,
+      "phase": "warmup",
+      "train_loss": 0.8429,
+      "train_acc": 74.67,
+      "val_loss": 0.6956,
+      "val_top1": 78.64,
+      "val_top3": 93.14
+    },
+    {
+      "epoch": 3,
+      "phase": "warmup",
+      "train_loss": 0.6873,
+      "train_acc": 79.17,
+      "val_loss": 0.6171,
+      "val_top1": 81.42,
+      "val_top3": 94.26
+    },
+    {
+      "epoch": 4,
+      "phase": "finetune",
+      "train_loss": 0.5382,
+      "train_acc": 83.73,
+      "val_loss": 0.4113,
+      "val_top1": 87.06,
+      "val_top3": 96.94
+    },
+    {
+      "epoch": 5,
+      "phase": "finetune",
+      "train_loss": 0.29,
+      "train_acc": 91.27,
+      "val_loss": 0.3852,
+      "val_top1": 88.44,
+      "val_top3": 97.14
+    },
+    {
+      "epoch": 6,
+      "phase": "finetune",
+      "train_loss": 0.1547,
+      "train_acc": 95.25,
+      "val_loss": 0.3786,
+      "val_top1": 88.64,
+      "val_top3": 97.64
+    },
+    {
+      "epoch": 7,
+      "phase": "finetune",
+      "train_loss": 0.0941,
+      "train_acc": 97.19,
+      "val_loss": 0.3656,
+      "val_top1": 90.2,
+      "val_top3": 97.6
+    },
+    {
+      "epoch": 8,
+      "phase": "finetune",
+      "train_loss": 0.0541,
+      "train_acc": 98.33,
+      "val_loss": 0.3711,
+      "val_top1": 89.98,
+      "val_top3": 97.62
+    },
+    {
+      "epoch": 9,
+      "phase": "finetune",
+      "train_loss": 0.0366,
+      "train_acc": 98.95,
+      "val_loss": 0.3523,
+      "val_top1": 90.52,
+      "val_top3": 97.9
+    },
+    {
+      "epoch": 10,
+      "phase": "finetune",
+      "train_loss": 0.0275,
+      "train_acc": 99.31,
+      "val_loss": 0.3537,
+      "val_top1": 90.64,
+      "val_top3": 97.82
+    }
+  ]
+}

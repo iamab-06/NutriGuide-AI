@@ -29,3 +29,17 @@ async def test_categories_endpoint():
     assert "pizza" in data["categories"]
     assert "hamburger" in data["categories"]
     assert data["display_names"]["pizza"] == "Pizza"
+    assert data["total_food101_count"] == 101
+    assert "apple_pie" in data["all_categories"]
+
+
+@pytest.mark.asyncio
+async def test_cache_stats_endpoint():
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+        response = await ac.get("/api/cache/stats")
+    assert response.status_code == 200
+    data = response.json()
+    assert "nutrition_cache" in data
+    assert "search_cache" in data
+    assert "product_cache" in data
+    assert "hit_rate_pct" in data["nutrition_cache"]

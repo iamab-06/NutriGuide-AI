@@ -101,13 +101,6 @@ export default function CompareFoods() {
 
   return (
     <div className="p-6 lg:p-8 max-w-5xl mx-auto">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Compare Foods</h2>
-        <p className="text-gray-500 text-sm mt-1">
-          Compare two foods side-by-side per 100g using USDA FoodData Central data.
-        </p>
-      </div>
-
       {/* Input */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
         <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] gap-4 items-end">
@@ -216,7 +209,7 @@ export default function CompareFoods() {
                   <GitCompare className="w-4 h-4 text-white" />
                 </div>
                 <h3 className="font-bold">AI Comparison Summary</h3>
-                <span className="text-xs text-green-300 ml-auto">Powered by Gemini</span>
+                <span className="text-xs text-green-300 ml-auto">Powered by Gemma 3 4B</span>
               </div>
               <p className="text-green-100 text-sm leading-relaxed">{result.ai_summary}</p>
               <p className="text-green-300/60 text-xs mt-3">

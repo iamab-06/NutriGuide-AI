@@ -1,4 +1,4 @@
-import { Outlet, NavLink, useLocation } from 'react-router-dom'
+import { Outlet, NavLink } from 'react-router-dom'
 import {
   Leaf, Camera, BarChart3, ShieldAlert, MessageSquare,
   GitCompare, Menu, X, Activity
@@ -16,7 +16,6 @@ const navItems = [
 
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const location = useLocation()
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
@@ -72,12 +71,6 @@ export default function Layout() {
           ))}
         </nav>
 
-        {/* Footer */}
-        <div className="px-6 py-4 border-t border-white/10">
-          <p className="text-white/30 text-xs text-center">
-            NutriGuide AI &bull; SIT CSE 2026
-          </p>
-        </div>
       </aside>
 
       {/* Main content */}
@@ -90,15 +83,7 @@ export default function Layout() {
           >
             <Menu className="w-6 h-6" />
           </button>
-          <div className="flex-1">
-            <p className="text-gray-500 text-sm">
-              {navItems.find(n => n.path === location.pathname)?.label || 'NutriGuide AI'}
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-            <span className="text-xs text-gray-400">System Active</span>
-          </div>
+          <div className="flex-1" />
         </header>
 
         {/* Page content */}

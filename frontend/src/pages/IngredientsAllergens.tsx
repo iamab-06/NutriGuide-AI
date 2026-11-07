@@ -124,21 +124,6 @@ export default function IngredientsAllergens() {
 
   return (
     <div className="p-6 lg:p-8 max-w-4xl mx-auto">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Ingredients & Allergens</h2>
-        <p className="text-gray-500 text-sm mt-1">
-          Search packaged products for ingredient lists and declared allergen information from Open Food Facts.
-        </p>
-      </div>
-
-      <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-6 flex items-start gap-3">
-        <ShieldAlert className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-        <p className="text-sm text-amber-700">
-          <strong>Important:</strong> Allergen information is sourced from Open Food Facts community database.
-          Absence of allergen data does NOT confirm a product is allergen-free. Always verify with the physical product label.
-        </p>
-      </div>
-
       {/* Tabs */}
       <div className="flex gap-2 mb-6">
         {(['name', 'barcode'] as const).map((t) => (

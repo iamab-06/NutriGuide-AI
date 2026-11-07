@@ -15,7 +15,7 @@ from PIL import Image
 from app.services.classifier import get_classifier
 from app.services.nutrition import get_nutrition_for_food
 from app.services.openfoodfacts import search_product, get_product_by_barcode
-from app.services.gemini_service import _build_nutrition_context, chat_with_context
+from app.services.ollama_service import _build_nutrition_context, chat_with_context
 from app.rag.rag_service import get_rag_service
 
 

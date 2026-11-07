@@ -72,6 +72,7 @@ USDA_SEARCH_QUERIES = {
     "steak": "beef steak",
     "sushi": "sushi rolls",
     "waffles": "waffles plain",
+    "tiramisu": "tiramisu",
 }
 
 NUM_CLASSES = len(SUPPORTED_CATEGORIES)
@@ -99,4 +100,41 @@ USDA_REFERENCE_DATA = {
     "steak": {"food_name": "Beef steak, tenderloin, cooked", "calories": 271.0, "protein": 25.0, "carbohydrates": 0.0, "fat": 19.0, "sugar": 0.0, "fiber": 0.0, "sodium": 65.0, "cholesterol": 85.0, "saturated_fat": 7.8, "fdcId": 170208},
     "sushi": {"food_name": "Sushi, mixed rolls with fish and vegetables", "calories": 142.0, "protein": 5.8, "carbohydrates": 25.0, "fat": 2.1, "sugar": 4.5, "fiber": 1.5, "sodium": 480.0, "cholesterol": 12.0, "saturated_fat": 0.4, "fdcId": 1101935},
     "waffles": {"food_name": "Waffles, plain", "calories": 291.0, "protein": 7.9, "carbohydrates": 33.0, "fat": 14.0, "sugar": 2.0, "fiber": 1.8, "sodium": 511.0, "cholesterol": 69.0, "saturated_fat": 2.4, "fdcId": 172788},
+    "tiramisu": {"food_name": "Tiramisu", "calories": 353.0, "protein": 5.65, "carbohydrates": 29.4, "fat": 23.9, "sugar": 18.7, "fiber": 0.6, "sodium": 173.0, "cholesterol": 121.0, "saturated_fat": 13.3, "fdcId": 2705702},
+    # Common staple nutritional reference foods
+    "chicken_breast": {"food_name": "Chicken breast, cooked, skinless", "calories": 165.0, "protein": 31.0, "carbohydrates": 0.0, "fat": 3.6, "sugar": 0.0, "fiber": 0.0, "sodium": 74.0, "cholesterol": 85.0, "saturated_fat": 1.0, "fdcId": 171077},
+    "egg": {"food_name": "Whole egg, large (approx 50g each, 6.3g protein/egg)", "calories": 143.0, "protein": 12.6, "carbohydrates": 0.7, "fat": 9.5, "sugar": 0.4, "fiber": 0.0, "sodium": 142.0, "cholesterol": 372.0, "saturated_fat": 3.1, "fdcId": 171287},
+    "salmon": {"food_name": "Atlantic salmon, cooked", "calories": 208.0, "protein": 22.0, "carbohydrates": 0.0, "fat": 13.0, "sugar": 0.0, "fiber": 0.0, "sodium": 61.0, "cholesterol": 63.0, "saturated_fat": 3.1, "fdcId": 173686},
+    "tofu": {"food_name": "Tofu, firm", "calories": 83.0, "protein": 10.0, "carbohydrates": 2.3, "fat": 5.3, "sugar": 0.5, "fiber": 1.0, "sodium": 7.0, "cholesterol": 0.0, "saturated_fat": 0.8, "fdcId": 172448},
+    "banana": {"food_name": "Banana, fresh", "calories": 89.0, "protein": 1.1, "carbohydrates": 22.8, "fat": 0.3, "sugar": 12.2, "fiber": 2.6, "sodium": 1.0, "cholesterol": 0.0, "saturated_fat": 0.1, "fdcId": 173944},
+    "oats": {"food_name": "Rolled oats, whole grain", "calories": 389.0, "protein": 16.9, "carbohydrates": 66.3, "fat": 6.9, "sugar": 0.0, "fiber": 10.6, "sodium": 2.0, "cholesterol": 0.0, "saturated_fat": 1.2, "fdcId": 173904},
+    "greek_yogurt": {"food_name": "Greek yogurt, plain", "calories": 73.0, "protein": 10.0, "carbohydrates": 3.9, "fat": 2.0, "sugar": 3.6, "fiber": 0.0, "sodium": 46.0, "cholesterol": 6.0, "saturated_fat": 1.2, "fdcId": 173432},
 }
+
+# ---------------------------------------------------------------------------
+# Full Food-101 (101 categories) Reference Catalog
+# ---------------------------------------------------------------------------
+import os
+import json
+
+_f101_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "food101_names.json")
+ALL_FOOD101_CATEGORIES = []
+FOOD101_DISPLAY_NAMES = {}
+
+if os.path.exists(_f101_path):
+    try:
+        with open(_f101_path, "r", encoding="utf-8") as f:
+            raw_map = json.load(f)
+            # Keys are indices "0"..."100", values are category keys
+            sorted_indices = sorted([int(k) for k in raw_map.keys()])
+            ALL_FOOD101_CATEGORIES = [raw_map[str(idx)] for idx in sorted_indices]
+            FOOD101_DISPLAY_NAMES = {
+                cat: cat.replace("_", " ").title() for cat in ALL_FOOD101_CATEGORIES
+            }
+    except Exception:
+        pass
+
+if not ALL_FOOD101_CATEGORIES:
+    ALL_FOOD101_CATEGORIES = list(SUPPORTED_CATEGORIES)
+    FOOD101_DISPLAY_NAMES = dict(CATEGORY_DISPLAY_NAMES)
+

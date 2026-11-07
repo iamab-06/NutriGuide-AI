@@ -1,0 +1,46 @@
+sequenceDiagram
+    autonumber
+    actor User as User (Client)
+    participant UI as Frontend (AnalyzeFood.tsx)
+    participant API as FastAPI Router (/api/analyze)
+    participant CV as MobileNetV3 Classifier
+    participant Gemini as Gemini Vision (classify_food_with_gemini)
+    participant USDA as USDA Nutrition Service
+
+    User->>UI: Uploads ambiguous food image (e.g., Samosa classified as Apple Pie @ 43.9%)
+    UI->>API: POST /api/analyze (multipart/form-data)
+    API->>CV: predict(image_bytes)
+    CV-->>API: {predicted_class: 'apple_pie', confidence: 0.439, is_confident: false}
+    
+    Note over API: Confidence 43.9% < 70% threshold.<br/>Trigger Gemini Vision Multimodal Fallback.<br/>STRICT POLICY: Withhold definitive nutrition.
+    
+    API->>Gemini: classify_food_with_gemini(image_bytes)
+    Note over Gemini: Analyze visual features:<br/>- Triangular golden-brown pastry<br/>- Crisp fried pastry crust<br/>- Identifies: 'Samosa'
+    Gemini-->>API: {suggested_food: 'Samosa', confidence: 'High', explanation: 'Golden triangular pastry...', category_match: 'samosa'}
+    
+    API-->>UI: AnalyzeImageResponse {<br/>  classification: {predicted: 'Apple Pie', confidence: 0.439, is_confident: false},<br/>  nutrition: null,<br/>  gemini_fallback: {suggested_food: 'Samosa', ...},<br/>  requires_confirmation: true<br/>}
+
+    Note over UI: UI displays:<br/>1. Warning: "Low confidence identification"<br/>2. Gemini Vision Suggestion Card ("Samosa")<br/>3. Action Button: "Confirm Samosa & View Nutrition"<br/>4. Alternative Predictions list with "Select" buttons<br/>5. Manual 20-category dropdown override<br/>6. "Nutritional Data Pending Confirmation" Card
+
+    alt User clicks "Confirm Samosa & View Nutrition"
+        User->>UI: Clicks "Confirm Samosa & View Nutrition"
+        UI->>API: GET /api/nutrition/Samosa?category_key=samosa
+        API->>USDA: get_nutrition_for_food('Samosa', 'samosa')
+        USDA-->>API: NutritionData (262 kcal, 4.4g protein, 32.2g carbs, 13.0g fat per 100g)
+        API-->>UI: 200 OK (Verified USDA Nutrition)
+        UI-->>User: Displays verified Samosa NutritionCard
+    else User clicks an Alternative Prediction (e.g., Spring Rolls)
+        User->>UI: Clicks "Select Spring Rolls"
+        UI->>API: GET /api/nutrition/Spring%20Rolls?category_key=spring_rolls
+        API->>USDA: get_nutrition_for_food('Spring Rolls', 'spring_rolls')
+        USDA-->>API: NutritionData for Spring Rolls
+        API-->>UI: 200 OK
+        UI-->>User: Displays verified Spring Rolls NutritionCard
+    else User chooses Manual Dropdown
+        User->>UI: Selects food from 20-category dropdown
+        UI->>API: GET /api/nutrition/{selected_food}?category_key={key}
+        API->>USDA: get_nutrition_for_food(...)
+        USDA-->>API: NutritionData
+        API-->>UI: 200 OK
+        UI-->>User: Displays NutritionCard
+    end

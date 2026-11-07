@@ -9,12 +9,15 @@ from app.schemas.food import ProductInfo
 
 logger = logging.getLogger(__name__)
 
-OFF_BASE_URL = "https://world.openfoodfacts.org"
+OFF_HOSTS = [
+    "https://world.openfoodfacts.net",
+    "https://world.openfoodfacts.org",
+]
+DEFAULT_USER_AGENT = "NutriGuideAI - Web - Version 1.0 - https://github.com/nutriguide-ai"
 
 
 async def search_product(query: str, page: int = 1, page_size: int = 5) -> List[ProductInfo]:
-    """Search Open Food Facts by product name."""
-    url = f"{OFF_BASE_URL}/cgi/search.pl"
+    """Search Open Food Facts by product name with host failover."""
     params = {
         "search_terms": query,
         "search_simple": 1,
@@ -24,22 +27,36 @@ async def search_product(query: str, page: int = 1, page_size: int = 5) -> List[
         "page_size": page_size,
         "fields": "product_name,brands,ingredients_text,allergens,allergens_tags,nutriments,image_url,code",
     }
-    headers = {"User-Agent": settings.openfoodfacts_user_agent}
-    try:
-        async with httpx.AsyncClient(timeout=20.0) as client:
-            response = await client.get(url, params=params, headers=headers)
-            response.raise_for_status()
-            data = response.json()
-    except httpx.TimeoutException:
-        logger.error("Open Food Facts API timeout")
-        return []
-    except Exception as e:
-        logger.error(f"Open Food Facts error: {e}")
+    headers = {"User-Agent": DEFAULT_USER_AGENT}
+
+    data = None
+    for host in OFF_HOSTS:
+        url = f"{host}/cgi/search.pl"
+        try:
+            async with httpx.AsyncClient(timeout=12.0) as client:
+                response = await client.get(url, params=params, headers=headers)
+                if response.status_code == 200:
+                    data = response.json()
+                    break
+                else:
+                    logger.warning(f"Open Food Facts ({host}) returned status {response.status_code}")
+        except httpx.TimeoutException:
+            logger.warning(f"Open Food Facts timeout on {host}")
+        except Exception as e:
+            logger.warning(f"Open Food Facts error on {host}: {e}")
+
+    if not data or not isinstance(data, dict):
+        logger.error(f"Could not retrieve valid search results for '{query}' from Open Food Facts")
         return []
 
     products = data.get("products", [])
+    if not isinstance(products, list):
+        return []
+
     results = []
     for p in products:
+        if not isinstance(p, dict):
+            continue
         missing = []
         if not p.get("ingredients_text"):
             missing.append("ingredients")
@@ -50,8 +67,8 @@ async def search_product(query: str, page: int = 1, page_size: int = 5) -> List[
             brands=p.get("brands"),
             ingredients_text=p.get("ingredients_text"),
             allergens=p.get("allergens"),
-            allergens_tags=p.get("allergens_tags", []),
-            nutriments=p.get("nutriments"),
+            allergens_tags=p.get("allergens_tags") or [],
+            nutriments=p.get("nutriments") if isinstance(p.get("nutriments"), dict) else None,
             image_url=p.get("image_url"),
             barcode=p.get("code"),
             data_complete=len(missing) == 0,
@@ -61,22 +78,30 @@ async def search_product(query: str, page: int = 1, page_size: int = 5) -> List[
 
 
 async def get_product_by_barcode(barcode: str) -> Optional[ProductInfo]:
-    """Get product info by barcode."""
-    url = f"{OFF_BASE_URL}/api/v2/product/{barcode}.json"
-    headers = {"User-Agent": settings.openfoodfacts_user_agent}
-    try:
-        async with httpx.AsyncClient(timeout=15.0) as client:
-            response = await client.get(url, headers=headers)
-            response.raise_for_status()
-            data = response.json()
-    except Exception as e:
-        logger.error(f"Open Food Facts barcode lookup error: {e}")
+    """Get product info by barcode with host failover."""
+    headers = {"User-Agent": DEFAULT_USER_AGENT}
+
+    data = None
+    for host in OFF_HOSTS:
+        url = f"{host}/api/v2/product/{barcode}.json"
+        try:
+            async with httpx.AsyncClient(timeout=12.0) as client:
+                response = await client.get(url, headers=headers)
+                if response.status_code == 200:
+                    raw_json = response.json()
+                    if isinstance(raw_json, dict) and raw_json.get("status") == 1:
+                        data = raw_json
+                        break
+        except Exception as e:
+            logger.warning(f"Open Food Facts barcode lookup error on {host}: {e}")
+
+    if not data or not isinstance(data, dict) or data.get("status") != 1:
         return None
 
-    if data.get("status") != 1:
+    p = data.get("product")
+    if not isinstance(p, dict):
         return None
 
-    p = data.get("product", {})
     missing = []
     if not p.get("ingredients_text"):
         missing.append("ingredients")
@@ -88,8 +113,8 @@ async def get_product_by_barcode(barcode: str) -> Optional[ProductInfo]:
         brands=p.get("brands"),
         ingredients_text=p.get("ingredients_text"),
         allergens=p.get("allergens"),
-        allergens_tags=p.get("allergens_tags", []),
-        nutriments=p.get("nutriments"),
+        allergens_tags=p.get("allergens_tags") or [],
+        nutriments=p.get("nutriments") if isinstance(p.get("nutriments"), dict) else None,
         image_url=p.get("image_url"),
         barcode=barcode,
         data_complete=len(missing) == 0,

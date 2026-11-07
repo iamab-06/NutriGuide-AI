@@ -44,11 +44,89 @@ export interface ClassificationResult {
   supported_categories: string[]
 }
 
+export interface GeminiVisionFallback {
+  available: boolean
+  is_food?: boolean
+  suggested_food?: string | null
+  category_match?: string | null
+  confidence?: string | null
+  explanation?: string | null
+  source: string
+  error?: string | null
+}
+
+export interface ConditionItem {
+  id: string
+  name: string
+  category: string
+  icon: string
+  description: string
+}
+
+export interface ConditionEvaluation {
+  condition_id: string
+  condition_name: string
+  status: 'SAFE' | 'MODERATE' | 'RESTRICTED'
+  headline: string
+  explanation: string
+  recommendation?: string | null
+}
+
+export interface HealthSafetyReport {
+  overall_status: 'SAFE' | 'MODERATE' | 'RESTRICTED'
+  summary: string
+  evaluations: ConditionEvaluation[]
+  disclaimer: string
+}
+
+export interface MealComponent {
+  name: string
+  category_key?: string | null
+  portion_g: number
+  serving_description: string
+  calories: number
+  protein: number
+  carbohydrates: number
+  fat: number
+  fiber?: number | null
+  sugar?: number | null
+  sodium?: number | null
+  source: string
+  notes?: string | null
+}
+
+export interface MealPlateAnalysis {
+  is_plate: boolean
+  meal_title: string
+  items_detected_count: number
+  components: MealComponent[]
+  total_calories: number
+  total_protein: number
+  total_carbohydrates: number
+  total_fat: number
+  total_fiber: number
+  total_sugar: number
+  total_sodium: number
+  macro_ratios: {
+    carbohydrates_pct: number
+    protein_pct: number
+    fat_pct: number
+  }
+  health_safety?: HealthSafetyReport | null
+  visual_summary?: string | null
+  source: string
+}
+
 export interface AnalyzeImageResponse {
   classification: ClassificationResult
   nutrition?: NutritionData | null
   message: string
   error?: string | null
+  gemini_fallback?: GeminiVisionFallback | null
+  requires_confirmation?: boolean
+  is_food?: boolean
+  health_safety?: HealthSafetyReport | null
+  plate_analysis?: MealPlateAnalysis | null
 }
 
 export interface ProductInfo {

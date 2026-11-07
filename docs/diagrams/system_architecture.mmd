@@ -1,0 +1,88 @@
+flowchart TD
+    subgraph Client["Client Tier (Web Browser)"]
+        User["End User / Nutrition Researcher"]
+        UI["React 19 + TypeScript SPA (Vite 8)"]
+        UI_Dash["Dashboard View"]
+        UI_Analyze["Food Image Analyzer"]
+        UI_Nutr["Nutrition Lookup"]
+        UI_Allergen["Ingredients & Allergens"]
+        UI_Chat["AI Nutrition Assistant"]
+        UI_Comp["Food Comparison"]
+        AxiosClient["Axios HTTP Client (api.ts)"]
+    end
+
+    subgraph ReverseProxy["Development Gateway"]
+        ViteProxy["Vite Reverse Proxy (:5173/api -> :8000/api)"]
+    end
+
+    subgraph Backend["Application Server Tier (FastAPI + Uvicorn)"]
+        Router["FastAPI Application Router (main.py)"]
+        AnalyzeRoute["/api/analyze (analyze.py)"]
+        NutritionRoute["/api/nutrition (nutrition.py)"]
+        ProductsRoute["/api/products (products.py)"]
+        ChatRoute["/api/chat (chat.py)"]
+        CompareRoute["/api/compare (compare.py)"]
+        HealthRoute["/api/health (health.py)"]
+    end
+
+    subgraph VisionSubsystem["Computer Vision & Image Intelligence"]
+        Preprocess["Torchvision Pipeline (Resize 256, Crop 224, Normalize)"]
+        MobileNet["PyTorch MobileNetV3-Large Classifier (960 -> 20 Classes)"]
+        ThresholdGate{"Confidence >= 70% ?"}
+        WeightsFile[("Trained Weights: nutriguide_classifier.pth (17.1 MB)")]
+    end
+
+    subgraph FallbackEngine["Multimodal Gemini Fallback & Confirmation"]
+        GeminiVision["Gemini Vision Fallback (classify_food_with_gemini)"]
+        ConfirmGate["User Confirmation Required (Definitive Nutrition Withheld)"]
+        UserOverride["Candidate Selection / Manual 20-Category Dropdown"]
+    end
+
+    subgraph RAGSubsystem["Retrieval-Augmented Generation (RAG)"]
+        Embedder["Sentence Transformer (all-MiniLM-L6-v2)"]
+        VectorDB[("FAISS L2 Flat Vector Index")]
+        KBStore[("Curated Nutrition KB (20 Domain Documents)")]
+        PromptEngine["Evidence-Grounded Prompt Compiler"]
+    end
+
+    subgraph ExternalAPIs["External Intelligence & Data Sources"]
+        USDAService["USDA FoodData Central Service (nutrition.py)"]
+        OFFService["Open Food Facts Service (openfoodfacts.py)"]
+        GeminiService["Google Gemini 1.5/2.x API Service (gemini_service.py)"]
+        USDA_API["USDA FoodData Central REST API"]
+        OFF_API["Open Food Facts Global Database"]
+        Gemini_Cloud["Google AI Studio Cloud Endpoint"]
+        USDARefData[("Verified Local USDA Reference Dataset")]
+    end
+
+    User --> UI
+    UI --> UI_Dash & UI_Analyze & UI_Nutr & UI_Allergen & UI_Chat & UI_Comp
+    UI_Dash & UI_Analyze & UI_Nutr & UI_Allergen & UI_Chat & UI_Comp --> AxiosClient
+    AxiosClient --> ViteProxy
+    ViteProxy --> Router
+
+    Router --> AnalyzeRoute & NutritionRoute & ProductsRoute & ChatRoute & CompareRoute & HealthRoute
+
+    AnalyzeRoute --> Preprocess --> MobileNet
+    WeightsFile -.-> MobileNet
+    MobileNet --> ThresholdGate
+    ThresholdGate -- "Yes (>= 70%)" --> USDAService
+    ThresholdGate -- "No (< 70%)" --> GeminiVision
+    GeminiVision --> ConfirmGate
+    ConfirmGate --> UserOverride
+    UserOverride --> USDAService
+
+    NutritionRoute --> USDAService
+    ProductsRoute --> OFFService
+    ChatRoute --> PromptEngine
+    CompareRoute --> USDAService & GeminiService
+
+    PromptEngine --> Embedder --> VectorDB
+    KBStore -.-> VectorDB
+    PromptEngine --> USDAService
+    PromptEngine --> GeminiService
+
+    USDAService --> USDA_API
+    USDAService -. "Offline / Rate-Limit Fallback" .-> USDARefData
+    OFFService --> OFF_API
+    GeminiService --> Gemini_Cloud

@@ -1,0 +1,49 @@
+flowchart TD
+    subgraph OfflineIndex["Offline Knowledge Indexing Phase"]
+        KBSources["20 Curated Nutrition Knowledge Documents\n(Macronutrients, Micronutrients, Allergens, GI, Food Profiles)"]
+        SentenceModel["SentenceTransformer('all-MiniLM-L6-v2')\nOutput Dimension: 384"]
+        FAISSIndex[("FAISS IndexFlatL2\n384-dimensional Euclidean Vector Space")]
+        
+        KBSources --> SentenceModel --> FAISSIndex
+    end
+
+    subgraph UserQueryFlow["Online Query & Retrieval Flow"]
+        UserMsg["User Message / Question\n(e.g., 'What are the macros of fried rice and is it healthy?')"]
+        
+        DetectEntity{"Food Entity Auto-Detection\nRegex & substring match against\nsupported categories & reference foods"}
+        
+        UserMsg --> DetectEntity
+        
+        DetectEntity -- "Entity Detected (e.g. 'fried_rice')" --> FetchUSDA["Fetch Verified USDA Nutrition\n(163 kcal, 5.2g protein, 28g carbs, 3.5g fat per 100g)"]
+        DetectEntity -- "No Entity Detected" --> QueryEmbed["Query Encoding via all-MiniLM-L6-v2"]
+        
+        FetchUSDA --> QueryEmbed
+        
+        QueryEmbed --> VectorSearch["faiss_index.search(query_vector, k=2)\nEuclidean Nearest-Neighbor Search"]
+        
+        VectorSearch --> RetrievedDocs["Retrieved Top-2 Relevant Knowledge Chunks"]
+    end
+
+    subgraph PromptCompilation["Context Assembly & Evidence Grounding"]
+        RetrievedDocs --> ContextBuilder["_build_nutrition_context(food_context)"]
+        FetchUSDA --> ContextBuilder
+        History["Last 6 Messages History"] --> PromptAssembly["Structured Gemini Prompt Assembly"]
+        
+        ContextBuilder --> PromptAssembly
+        
+        PromptAssembly --> SystemInstruction["System Instruction Enforcement:\n1. Use verified food data only\n2. Never invent numerical values\n3. State missing data explicitly\n4. Differentiate verified data vs general advice\n5. No medical diagnoses"]
+    end
+
+    subgraph LLMExecution["Gemini Model Execution & Failover"]
+        SystemInstruction --> ThreadPool["asyncio.to_thread(chat.send_message, ...)\nThread isolation with 10.0s Timeout"]
+        
+        ThreadPool --> ModelHierarchy{"Model Candidate Execution:\n1. gemini-3.5-flash\n2. gemini-3.5-flash-lite\n3. gemini-3.1-flash-lite\n4. gemini-flash-latest\n5. gemini-3.8-flash"}
+        
+        ModelHierarchy -- "Success" --> LLMResponse["Structured Grounded Response Text"]
+        ModelHierarchy -- "Rate Limit / 429 / Quota" --> ModelFailover["Automatic Model Failover or\nGraceful Offline Grounding Notice"]
+    end
+
+    subgraph ResponseDelivery["Frontend Delivery"]
+        LLMResponse --> ChatResponseJSON["ChatResponse:\n- answer\n- sources: ['USDA FoodData Central', 'NutriGuide Knowledge Base']\n- evidence_used: True\n- warning: null"]
+        ChatResponseJSON --> UIRender["AIAssistant.tsx:\n- Render assistant message bubble\n- Display source attribution pills\n- Retain conversation history"]
+    end

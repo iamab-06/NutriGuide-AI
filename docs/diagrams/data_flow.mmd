@@ -1,0 +1,52 @@
+flowchart LR
+    subgraph Users["End Users"]
+        Browser["Desktop & Mobile Web Browsers"]
+    end
+
+    subgraph FrontendApp["Frontend Application (:5173)"]
+        ReactRouter["React Router v7"]
+        ViteDevServer["Vite 8 Dev Server / Reverse Proxy"]
+        StateStore["Component State (React Hooks)"]
+    end
+
+    subgraph BackendAPI["NutriGuide Backend API (:8000)"]
+        FastAPIServer["FastAPI ASGI Application"]
+        CORSModule["CORS Middleware"]
+        PydanticSchemas["Pydantic v2 Serialization"]
+    end
+
+    subgraph ProcessingEngines["Processing Engines"]
+        ClassifierEngine["PyTorch MobileNetV3-Large Engine"]
+        RAGEngine["FAISS L2 + Sentence Transformers"]
+        ContextAssembler["Grounding & Context Assembler"]
+    end
+
+    subgraph ExternalServices["External Endpoints & Databases"]
+        USDALive["USDA FoodData Central API\n(api.nal.usda.gov)"]
+        USDALocal[("Local Standard Reference Fallback")]
+        OFFLive["Open Food Facts REST API\n(world.openfoodfacts.org / .net)"]
+        GeminiCloud["Google Generative AI Studio\n(Gemini 1.5/2.x)"]
+    end
+
+    Browser <--> |"User Actions & JSON Responses"| ReactRouter
+    ReactRouter <--> StateStore
+    ReactRouter --> |"API Requests"| ViteDevServer
+    ViteDevServer <--> |"HTTP Proxy (/api/*)"| FastAPIServer
+
+    FastAPIServer --> CORSModule --> PydanticSchemas
+    
+    PydanticSchemas --> |"Image Bytes"| ClassifierEngine
+    PydanticSchemas --> |"Query Text"| RAGEngine
+    PydanticSchemas --> |"Food Query"| ContextAssembler
+
+    ClassifierEngine --> |"Uncertain Prediction (<70%)"| GeminiCloud
+    ClassifierEngine --> |"Confident (>=70%)"| ContextAssembler
+
+    ContextAssembler <--> |"Food Search & Nutrient Detail"| USDALive
+    USDALive -.-> |"Timeout / Rate Limit Fallback"| USDALocal
+    
+    PydanticSchemas <--> |"Product Search & Barcode Lookup"| OFFLive
+
+    ContextAssembler --> |"Grounded Multi-turn Prompt"| GeminiCloud
+    GeminiCloud --> |"AI Nutrition Explanation"| ContextAssembler
+    ContextAssembler --> PydanticSchemas

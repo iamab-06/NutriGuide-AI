@@ -166,11 +166,15 @@ class RAGService:
 
     def retrieve(self, query: str, k: int = 3) -> List[str]:
         """Retrieve top-k relevant documents for the query."""
+        if not query or not query.strip():
+            return []
+        k = max(1, min(int(k), len(self.documents)))
+
         if not self._initialized:
             self.initialize()
         if self._initialized and self.index is not None and hasattr(self, "encoder"):
             try:
-                query_embedding = self.encoder.encode([query]).astype(np.float32)
+                query_embedding = self.encoder.encode([query.strip()]).astype(np.float32)
                 distances, indices = self.index.search(query_embedding, k)
                 results = []
                 for i, idx in enumerate(indices[0]):
@@ -182,7 +186,7 @@ class RAGService:
                 logger.error(f"RAG vector retrieval error: {e}")
 
         # Seamless fallback
-        return self._fallback_retrieve(query, k)
+        return self._fallback_retrieve(query.strip(), k)
 
     def get_context_string(self, query: str, k: int = 3) -> str:
         """Get retrieved context as a formatted string."""

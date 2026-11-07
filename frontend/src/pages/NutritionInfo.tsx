@@ -51,13 +51,6 @@ export default function NutritionInfo() {
 
   return (
     <div className="p-6 lg:p-8 max-w-4xl mx-auto">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Nutrition Information</h2>
-        <p className="text-gray-500 text-sm mt-1">
-          Search for any food to retrieve detailed nutrition data from USDA FoodData Central.
-        </p>
-      </div>
-
       {/* Search */}
       <form onSubmit={handleSearch} className="flex gap-3 mb-6">
         <div className="flex-1 relative">

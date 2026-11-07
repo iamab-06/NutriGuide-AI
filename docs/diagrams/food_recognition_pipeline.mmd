@@ -1,0 +1,35 @@
+flowchart TD
+    Start(["User selects/drops food image"]) --> ClientVal{"Client-Side Validation\n- MIME: JPEG/PNG/WebP\n- Size <= 10MB"}
+    
+    ClientVal -- "Invalid format/size" --> ClientErr["Display error toast / message"]
+    ClientVal -- "Valid" --> FormData["Wrap in FormData (file: UploadFile)"]
+    
+    FormData --> HTTPPost["POST /api/analyze\nContent-Type: multipart/form-data"]
+    
+    HTTPPost --> BackendVal{"Backend Validation\n- Content-Type check\n- Size check (10MB limit)"}
+    BackendVal -- "Failed" --> HTTP400["Return 400 Bad Request"]
+    BackendVal -- "Passed" --> ReadBytes["Read image bytes into memory"]
+    
+    ReadBytes --> PILOpen["PIL.Image.open(io.BytesIO(bytes))\nConvert to RGB"]
+    
+    PILOpen --> Preprocess["Torchvision Preprocessing Pipeline:\n1. Resize(256)\n2. CenterCrop(224)\n3. ToTensor()\n4. Normalize(mean=[0.485,0.456,0.406], std=[0.229,0.224,0.225])"]
+    
+    Preprocess --> Tensor["PyTorch Tensor: [1, 3, 224, 224]\nDevice: CUDA or CPU"]
+    
+    Tensor --> ForwardPass["MobileNetV3-Large Forward Pass\nLinear Classifier Head (960 -> 20 classes)"]
+    
+    ForwardPass --> Softmax["Softmax Activation -> Class Probability Distribution P(C)"]
+    
+    Softmax --> TopK["torch.topk(P, k=5)\nRank Top-5 Candidate Classes"]
+    
+    TopK --> TopResult["Top-1 Prediction:\n- predicted_class\n- display_name\n- confidence"]
+    
+    TopResult --> ConfCheck{"Is confidence >= 0.70 (70%)?"}
+    
+    ConfCheck -- "Yes (Confident)" --> ConfidentPath["is_confident = True\nrequires_confirmation = False\nQuery USDA Nutrition directly"]
+    ConfCheck -- "No (Uncertain)" --> UncertainPath["is_confident = False\nrequires_confirmation = True\nWithhold Nutrition (nutrition = None)\nInvoke Gemini Vision Fallback"]
+    
+    ConfidentPath --> ResponsePayload["Assemble AnalyzeImageResponse JSON"]
+    UncertainPath --> ResponsePayload
+    
+    ResponsePayload --> ClientRender["Frontend AnalyzeFood.tsx:\n- Render image preview\n- Display Top-1 with ConfidenceBadge\n- If confident: Render NutritionCard\n- If uncertain: Render Gemini Suggestion & Pending Notice"]
