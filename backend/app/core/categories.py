@@ -91,6 +91,9 @@ CATEGORY_DISPLAY_NAMES = {
     "dosa": "Dosa",
     "upma": "Upma",
     "jowar_roti": "Jowar Roti",
+    "idli": "Idli",
+    "thatteIdli": "Thatte Idli",
+    "ragiroti": "Ragi Roti",
 }
 
 # USDA search queries for each category (normalized food name for API lookup)
