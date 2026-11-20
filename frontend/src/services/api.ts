@@ -34,7 +34,7 @@ API.interceptors.response.use(
     } else if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
       message = 'Request timed out. Please try again.'
     } else if (err.message === 'Network Error' || !err.response) {
-      message = 'Unable to connect to the backend server. Please verify the backend is running at http://127.0.0.1:8000.'
+      message = 'Unable to connect to the server. Please try again in a moment.'
     } else if (err.message) {
       message = err.message
     }
