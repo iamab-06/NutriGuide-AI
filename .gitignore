@@ -39,7 +39,6 @@ DOCUMENTATION_SUMMARY.md
 # Debug / scratch artifacts
 backend/debug_crops/
 scratch/
-backend/models/food35_classes.json
 backend/models/training_log35.json
 frontend/src/assets/*.webp
 frontend/src/services/*.webp
