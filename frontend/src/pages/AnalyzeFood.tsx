@@ -13,6 +13,8 @@ import {
   Ban,
   UtensilsCrossed,
   Layers,
+  Clock,
+  Zap,
 } from 'lucide-react'
 import {
   analyzeImage,
@@ -557,7 +559,7 @@ export default function AnalyzeFood() {
                               onChange={(e) => {
                                 const val = e.target.value
                                 if (val) {
-                                  const key = val.toLowerCase().replace(/ /g, '_')
+                                   const key = val.toLowerCase().replace(/ /g, '_')
                                   handleSelectAlternative(val, key)
                                 }
                               }}
@@ -573,6 +575,32 @@ export default function AnalyzeFood() {
                               <span className="text-xs text-[#2d6a4f] animate-pulse">Updating nutrition...</span>
                             )}
                           </div>
+
+                          {/* Real-time Response Latency & Processing Timing Breakdown */}
+                          {result.timing && (
+                            <div className="mt-3 pt-2.5 border-t border-gray-100 flex flex-wrap items-center gap-2 text-xs">
+                              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-800 rounded-lg border border-emerald-200 font-mono text-[11px] font-medium">
+                                <Clock className="w-3.5 h-3.5 text-emerald-600" />
+                                <span>Total Latency: <strong>{result.timing.total_ms > 1000 ? `${(result.timing.total_ms / 1000).toFixed(2)}s` : `${result.timing.total_ms.toFixed(1)}ms`}</strong></span>
+                              </div>
+                              {result.timing.classification_ms !== null && result.timing.classification_ms !== undefined && (
+                                <span className="px-2 py-0.5 bg-gray-100 rounded text-gray-600 font-mono text-[11px]">
+                                  Classifier: {result.timing.classification_ms.toFixed(1)}ms
+                                </span>
+                              )}
+                              {result.timing.fallback_ms !== null && result.timing.fallback_ms !== undefined && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-50 text-purple-700 rounded border border-purple-200 font-mono text-[11px]">
+                                  <Zap className="w-3 h-3 text-purple-600" />
+                                  Ollama Vision: {result.timing.fallback_ms > 1000 ? `${(result.timing.fallback_ms / 1000).toFixed(2)}s` : `${result.timing.fallback_ms.toFixed(1)}ms`}
+                                </span>
+                              )}
+                              {result.timing.nutrition_retrieval_ms !== null && result.timing.nutrition_retrieval_ms !== undefined && (
+                                <span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded border border-blue-200 font-mono text-[11px]">
+                                  DB: {result.timing.nutrition_retrieval_ms.toFixed(1)}ms
+                                </span>
+                              )}
+                            </div>
+                          )}
                         </>
                       )}
                     </div>
@@ -631,7 +659,7 @@ export default function AnalyzeFood() {
           ))}
         </div>
         <p className="text-xs text-gray-400 mt-3">
-          ✦ MobileNetV3 101 classifier &bull; Multi-item Indian Thali decomposition via Gemma 3 Vision
+          ✦ MobileNetV3 Classifier (including Karnataka regional dishes) &bull; Multi-item Indian Thali decomposition via Gemma 3 Vision
         </p>
       </div>
     </div>

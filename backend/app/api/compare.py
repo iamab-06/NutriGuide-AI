@@ -1,9 +1,11 @@
 """NutriGuide AI - Food Comparison Router"""
+import time
 import logging
+import asyncio
 from fastapi import APIRouter, HTTPException
 from app.services.nutrition import get_nutrition_for_food
 from app.services.ollama_service import chat_with_context
-from app.schemas.food import CompareRequest, CompareResponse, NutritionData
+from app.schemas.food import CompareRequest, CompareResponse, NutritionData, TimingBreakdown
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -34,7 +36,8 @@ def _make_comparison_prompt(food1: NutritionData, food2: NutritionData) -> str:
 
 @router.post("/compare", response_model=CompareResponse)
 async def compare_foods(request: CompareRequest):
-    """Compare nutrition data for two foods."""
+    """Compare nutrition data for two foods with latency measurement."""
+    t_start = time.perf_counter()
     f1 = request.food1.strip()
     f2 = request.food2.strip()
     if not f1 or not f2:
@@ -47,16 +50,19 @@ async def compare_foods(request: CompareRequest):
         food_data = await get_nutrition_for_food(f1)
         if food_data is None:
             raise HTTPException(status_code=404, detail=f"No data found for '{f1}'.")
+        total_ms = round((time.perf_counter() - t_start) * 1000.0, 2)
         return CompareResponse(
             food1=food_data,
             food2=food_data,
             basis="per 100g",
             comparison_notes=f"Both items are identical ('{food_data.food_name}'). All nutritional values are equal.",
             ai_summary=f"Both selections refer to the same food item: {food_data.food_name}. All nutritional values per 100g are identical.",
+            latency_ms=total_ms,
+            timing=TimingBreakdown(total_ms=total_ms),
         )
 
     # Fetch nutrition for both foods in parallel
-    import asyncio
+    t_nutr_start = time.perf_counter()
     try:
         food1_data, food2_data = await asyncio.gather(
             get_nutrition_for_food(f1),
@@ -65,6 +71,8 @@ async def compare_foods(request: CompareRequest):
     except Exception as e:
         logger.error(f"Comparison nutrition fetch error: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve nutrition data for comparison.")
+    t_nutr_end = time.perf_counter()
+    nutr_ms = round((t_nutr_end - t_nutr_start) * 1000.0, 2)
 
     if food1_data is None:
         raise HTTPException(status_code=404, detail=f"No data found for '{f1}'.")
@@ -72,6 +80,7 @@ async def compare_foods(request: CompareRequest):
         raise HTTPException(status_code=404, detail=f"No data found for '{f2}'.")
 
     # Generate AI comparison summary
+    t_ai_start = time.perf_counter()
     ai_summary = None
     try:
         prompt = _make_comparison_prompt(food1_data, food2_data)
@@ -80,6 +89,8 @@ async def compare_foods(request: CompareRequest):
     except Exception as e:
         logger.warning(f"AI comparison summary failed: {e}")
         ai_summary = "AI comparison summary unavailable."
+    t_ai_end = time.perf_counter()
+    ai_ms = round((t_ai_end - t_ai_start) * 1000.0, 2)
 
     notes = []
     if not food1_data.data_available:
@@ -87,10 +98,17 @@ async def compare_foods(request: CompareRequest):
     if not food2_data.data_available:
         notes.append(f"Nutrition data not available for {request.food2}.")
 
+    total_ms = round((time.perf_counter() - t_start) * 1000.0, 2)
     return CompareResponse(
         food1=food1_data,
         food2=food2_data,
         basis="per 100g",
         comparison_notes=" ".join(notes) if notes else None,
         ai_summary=ai_summary,
+        latency_ms=total_ms,
+        timing=TimingBreakdown(
+            total_ms=total_ms,
+            nutrition_retrieval_ms=nutr_ms,
+            llm_generation_ms=ai_ms,
+        ),
     )

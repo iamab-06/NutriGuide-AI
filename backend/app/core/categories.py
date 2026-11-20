@@ -3,7 +3,7 @@ NutriGuide AI - Supported Food Categories
 These are the Food-101 categories the classifier is trained to recognize.
 """
 
-SUPPORTED_CATEGORIES = [
+FOOD20_CATEGORIES = [
     "apple_pie",
     "caesar_salad",
     "chicken_curry",
@@ -25,6 +25,30 @@ SUPPORTED_CATEGORIES = [
     "sushi",
     "waffles",
 ]
+
+KARNATAKA_CATEGORIES = [
+    "akki_rotti",
+    "bisi_bele_bath",
+    "chitranna",
+    "dharwad_peda",
+    "donne_biryani",
+    "holige_obbattu",
+    "jolada_rotti",
+    "karnataka_sambar",
+    "kesari_bath",
+    "maddur_vada",
+    "mangalore_buns",
+    "mysore_pak",
+    "neer_dosa",
+    "ragi_mudde",
+    "rava_idli",
+    "dosa",
+    "upma",
+    "jowar_roti",
+]
+
+# Combined 35 categories (20 standard benchmark + 15 Karnataka regional foods)
+SUPPORTED_CATEGORIES = sorted(FOOD20_CATEGORIES + KARNATAKA_CATEGORIES)
 
 # Human-readable display names
 CATEGORY_DISPLAY_NAMES = {
@@ -48,6 +72,25 @@ CATEGORY_DISPLAY_NAMES = {
     "steak": "Steak",
     "sushi": "Sushi",
     "waffles": "Waffles",
+    # Karnataka regional foods
+    "akki_rotti": "Akki Rotti",
+    "bisi_bele_bath": "Bisi Bele Bath",
+    "chitranna": "Chitranna",
+    "dharwad_peda": "Dharwad Peda",
+    "donne_biryani": "Donne Biryani",
+    "holige_obbattu": "Holige / Obbattu",
+    "jolada_rotti": "Jolada Rotti",
+    "karnataka_sambar": "Karnataka Sambar",
+    "kesari_bath": "Kesari Bath",
+    "maddur_vada": "Maddur Vada",
+    "mangalore_buns": "Mangalore Buns",
+    "mysore_pak": "Mysore Pak",
+    "neer_dosa": "Neer Dosa",
+    "ragi_mudde": "Ragi Mudde",
+    "rava_idli": "Rava Idli",
+    "dosa": "Dosa",
+    "upma": "Upma",
+    "jowar_roti": "Jowar Roti",
 }
 
 # USDA search queries for each category (normalized food name for API lookup)
@@ -73,6 +116,25 @@ USDA_SEARCH_QUERIES = {
     "sushi": "sushi rolls",
     "waffles": "waffles plain",
     "tiramisu": "tiramisu",
+    # Karnataka foods
+    "akki_rotti": "akki rotti",
+    "bisi_bele_bath": "bisi bele bath",
+    "chitranna": "chitranna",
+    "dharwad_peda": "dharwad peda",
+    "donne_biryani": "donne biryani",
+    "holige_obbattu": "holige obbattu",
+    "jolada_rotti": "jolada rotti",
+    "karnataka_sambar": "karnataka sambar",
+    "kesari_bath": "kesari bath",
+    "maddur_vada": "maddur vada",
+    "mangalore_buns": "mangalore buns",
+    "mysore_pak": "mysore pak",
+    "neer_dosa": "neer dosa",
+    "ragi_mudde": "ragi mudde",
+    "rava_idli": "rava idli",
+    "dosa": "plain dosa",
+    "upma": "upma",
+    "jowar_roti": "jowar roti",
 }
 
 NUM_CLASSES = len(SUPPORTED_CATEGORIES)

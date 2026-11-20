@@ -16,7 +16,7 @@ import {
   PanelLeftOpen,
 } from 'lucide-react'
 import { chat, streamChat } from '../services/api'
-import type { ChatMessage } from '../types'
+import type { ChatMessage, TimingBreakdown } from '../types'
 
 // Web Speech API interface for TypeScript
 interface SpeechRecognitionEvent {
@@ -50,6 +50,7 @@ interface DisplayMessage {
   sources?: string[]
   warning?: string | null
   evidence_used?: boolean
+  timing?: TimingBreakdown
 }
 
 export interface ChatSession {
@@ -514,6 +515,25 @@ export default function AIAssistant() {
               })
             )
           },
+          onDone: (timing) => {
+            if (timing) {
+              setSessionsState((prev) =>
+                prev.map((s) => {
+                  if (s.id === currentSessionId) {
+                    const updated = [...s.messages]
+                    if (updated[assistantIndex]) {
+                      updated[assistantIndex] = {
+                        ...updated[assistantIndex],
+                        timing,
+                      }
+                    }
+                    return { ...s, messages: updated, updatedAt: Date.now() }
+                  }
+                  return s
+                })
+              )
+            }
+          },
         }
       )
     } catch {
@@ -531,6 +551,7 @@ export default function AIAssistant() {
                   sources: response.sources,
                   warning: response.warning,
                   evidence_used: response.evidence_used,
+                  timing: response.timing || undefined,
                 }
               }
               return { ...s, messages: updated, updatedAt: Date.now() }
@@ -771,6 +792,25 @@ export default function AIAssistant() {
                   <div className="flex items-center gap-1 text-xs text-amber-600">
                     <AlertTriangle className="w-3 h-3" />
                     {msg.warning}
+                  </div>
+                )}
+
+                {/* Real-time Response Latency & TTFT Badge */}
+                {msg.role === 'assistant' && msg.timing && (
+                  <div className="flex flex-wrap items-center gap-1.5 text-[11px] font-mono text-gray-400 mt-0.5">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-50 text-gray-600 rounded-md border border-gray-200">
+                      ⏱️ {msg.timing.total_ms > 1000 ? `${(msg.timing.total_ms / 1000).toFixed(2)}s` : `${msg.timing.total_ms.toFixed(0)}ms`}
+                    </span>
+                    {msg.timing.time_to_first_token_ms && (
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-emerald-50 text-emerald-800 rounded border border-emerald-200 font-medium">
+                        ⚡ TTFT: {msg.timing.time_to_first_token_ms > 1000 ? `${(msg.timing.time_to_first_token_ms / 1000).toFixed(2)}s` : `${msg.timing.time_to_first_token_ms.toFixed(0)}ms`}
+                      </span>
+                    )}
+                    {msg.timing.rag_ms && msg.timing.rag_ms > 0 && (
+                      <span className="px-1.5 py-0.5 bg-blue-50 text-blue-700 rounded border border-blue-200">
+                        RAG: {msg.timing.rag_ms.toFixed(0)}ms
+                      </span>
+                    )}
                   </div>
                 )}
               </div>

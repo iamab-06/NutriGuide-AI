@@ -25,11 +25,24 @@ venv/
 .venv/
 env/
 
-# Model weights (large files)
+# Model weights (large files) - gitignored locally, upload manually to server
 models/*.pth
 models/*.pt
 models/*.pkl
 datasets/
+
+# Documentation generator script and output
+generate_documentation.py
+NutriGuide_AI_Complete_Documentation.docx
+DOCUMENTATION_SUMMARY.md
+
+# Debug / scratch artifacts
+backend/debug_crops/
+scratch/
+backend/models/food35_classes.json
+backend/models/training_log35.json
+frontend/src/assets/*.webp
+frontend/src/services/*.webp
 
 # Node / Frontend
 frontend/node_modules/

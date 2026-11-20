@@ -8,6 +8,7 @@ Combines:
 4. Numerical validation layer for Atwater macro checks.
 5. Server-Sent Events (SSE) token streaming for responsive low TTFT interactions.
 """
+import time
 import logging
 import json
 import re
@@ -22,7 +23,7 @@ from app.services.validator import validate_and_sanitize_nutrition
 from app.data.food_database import get_local_food_db, CURATED_FOOD_RECORDS
 from app.rag.rag_service import get_rag_service
 from app.core.categories import CATEGORY_DISPLAY_NAMES, USDA_REFERENCE_DATA
-from app.schemas.food import ChatRequest, ChatResponse
+from app.schemas.food import ChatRequest, ChatResponse, TimingBreakdown
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -285,17 +286,22 @@ def _detect_food_in_query(query: str) -> Optional[Tuple[str, str]]:
     return None
 
 
-async def _build_full_chat_context(request: ChatRequest) -> Tuple[Dict[str, Any], str]:
-    """Helper to build RAG and food context for both standard and streaming chat."""
+async def _build_full_chat_context(request: ChatRequest) -> Tuple[Dict[str, Any], str, Dict[str, float]]:
+    """Helper to build RAG and food context for both standard and streaming chat, capturing retrieval timings."""
     message = request.message.strip()
+    timings: Dict[str, float] = {}
 
     rag_context = ""
+    t_rag_start = time.perf_counter()
     try:
         rag_service = get_rag_service()
         rag_context = rag_service.get_context_string(message, k=3)
     except Exception as e:
         logger.warning(f"RAG retrieval encountered an issue: {e}")
+    t_rag_end = time.perf_counter()
+    timings["rag_ms"] = round((t_rag_end - t_rag_start) * 1000.0, 2)
 
+    t_nutr_start = time.perf_counter()
     food_context: Dict[str, Any] = dict(request.food_context) if request.food_context else {}
     if rag_context:
         food_context["rag_context"] = rag_context
@@ -436,7 +442,10 @@ async def _build_full_chat_context(request: ChatRequest) -> Tuple[Dict[str, Any]
                     elif len(matched_foods) > 1:
                         food_context["foods"] = matched_foods
 
-    return food_context, rag_context
+    t_nutr_end = time.perf_counter()
+    timings["nutrition_retrieval_ms"] = round((t_nutr_end - t_nutr_start) * 1000.0, 2)
+
+    return food_context, rag_context, timings
 
 
 @router.post("/chat", response_model=ChatResponse)
@@ -444,28 +453,43 @@ async def chat(request: ChatRequest):
     """
     Chat with the AI nutrition assistant.
     Combines semantic RAG retrieval with verified USDA and Local Food Data.
+    Measures and returns exact real-time latency breakdown across all pipeline stages.
     """
     message = request.message.strip()
     if not message:
         raise HTTPException(status_code=400, detail="Message cannot be empty.")
 
-    food_context, rag_context = await _build_full_chat_context(request)
+    t_start = time.perf_counter()
+    food_context, rag_context, timings = await _build_full_chat_context(request)
 
+    t_llm_start = time.perf_counter()
     result = await chat_with_context(
         user_message=message,
         food_context=food_context if food_context else None,
         history=request.history,
     )
+    t_llm_end = time.perf_counter()
+    llm_ms = round((t_llm_end - t_llm_start) * 1000.0, 2)
+    total_ms = round((t_llm_end - t_start) * 1000.0, 2)
 
     sources = result.get("sources", [])
     if rag_context and "NutriGuide Knowledge Base" not in sources:
         sources.append("NutriGuide Knowledge Base")
+
+    timing = TimingBreakdown(
+        total_ms=total_ms,
+        rag_ms=timings.get("rag_ms"),
+        nutrition_retrieval_ms=timings.get("nutrition_retrieval_ms"),
+        llm_generation_ms=llm_ms,
+    )
 
     return ChatResponse(
         answer=result["answer"],
         sources=list(set(sources)),
         evidence_used=result.get("evidence_used", False),
         warning=result.get("warning"),
+        latency_ms=total_ms,
+        timing=timing,
     )
 
 
@@ -474,23 +498,45 @@ async def chat_stream(request: ChatRequest):
     """
     Server-Sent Events (SSE) streaming endpoint for the AI Assistant.
     Provides progressive token delivery, lowering perceived latency by over 80%.
+    Includes real-time Time-To-First-Token (TTFT) and total generation metrics in the completion payload.
     """
     message = request.message.strip()
     if not message:
         raise HTTPException(status_code=400, detail="Message cannot be empty.")
 
-    food_context, rag_context = await _build_full_chat_context(request)
+    t_start = time.perf_counter()
+    food_context, rag_context, timings = await _build_full_chat_context(request)
 
     async def event_generator():
+        t_first_token = None
+        t_llm_start = time.perf_counter()
         try:
             async for event_obj in stream_chat_with_context(
                 user_message=message,
                 food_context=food_context if food_context else None,
                 history=request.history,
             ):
+                if event_obj.get("event") == "token" and t_first_token is None:
+                    t_first_token = time.perf_counter()
+
                 if event_obj.get("event") == "meta" and rag_context:
                     if "NutriGuide Knowledge Base" not in event_obj.get("sources", []):
                         event_obj["sources"].append("NutriGuide Knowledge Base")
+
+                if event_obj.get("event") == "done":
+                    t_done = time.perf_counter()
+                    total_ms = round((t_done - t_start) * 1000.0, 2)
+                    ttft_ms = round((t_first_token - t_start) * 1000.0, 2) if t_first_token else None
+                    llm_ms = round((t_done - t_llm_start) * 1000.0, 2)
+                    event_obj["timing"] = {
+                        "total_ms": total_ms,
+                        "time_to_first_token_ms": ttft_ms,
+                        "rag_ms": timings.get("rag_ms"),
+                        "nutrition_retrieval_ms": timings.get("nutrition_retrieval_ms"),
+                        "llm_generation_ms": llm_ms,
+                    }
+                    event_obj["latency_ms"] = total_ms
+
                 yield f"data: {json.dumps(event_obj)}\n\n"
         except Exception as exc:
             logger.error(f"SSE streaming exception: {exc}")

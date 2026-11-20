@@ -55,6 +55,17 @@ export interface GeminiVisionFallback {
   error?: string | null
 }
 
+export interface TimingBreakdown {
+  total_ms: number
+  preprocessing_ms?: number | null
+  classification_ms?: number | null
+  fallback_ms?: number | null
+  nutrition_retrieval_ms?: number | null
+  rag_ms?: number | null
+  llm_generation_ms?: number | null
+  time_to_first_token_ms?: number | null
+}
+
 export interface ConditionItem {
   id: string
   name: string
@@ -115,6 +126,8 @@ export interface MealPlateAnalysis {
   health_safety?: HealthSafetyReport | null
   visual_summary?: string | null
   source: string
+  timing?: TimingBreakdown | null
+  latency_ms?: number | null
 }
 
 export interface AnalyzeImageResponse {
@@ -127,6 +140,8 @@ export interface AnalyzeImageResponse {
   is_food?: boolean
   health_safety?: HealthSafetyReport | null
   plate_analysis?: MealPlateAnalysis | null
+  timing?: TimingBreakdown | null
+  latency_ms?: number | null
 }
 
 export interface ProductInfo {
@@ -153,6 +168,8 @@ export interface ChatResponse {
   sources: string[]
   evidence_used: boolean
   warning?: string | null
+  timing?: TimingBreakdown | null
+  latency_ms?: number | null
 }
 
 export interface FoodSearchResult {
@@ -169,4 +186,6 @@ export interface CompareResponse {
   basis: string
   comparison_notes?: string | null
   ai_summary?: string | null
+  timing?: TimingBreakdown | null
+  latency_ms?: number | null
 }

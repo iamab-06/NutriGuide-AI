@@ -9,6 +9,7 @@ Retrieves verified nutritional data from:
 """
 import logging
 import math
+import re
 from typing import Optional, Dict, Any, List
 import httpx
 
@@ -70,6 +71,37 @@ def _extract_nutrients(food_item: Dict[str, Any]) -> Dict[str, Optional[float]]:
     return result
 
 
+def _is_usda_result_relevant(query: str, description: str) -> bool:
+    """Validate whether a USDA search result is genuinely relevant to the user query."""
+    if not query or not description:
+        return False
+
+    stopwords = {"and", "with", "in", "style", "traditional", "the", "a", "an", "of", "fresh", "raw", "cooked"}
+    q_tokens = [w for w in re.findall(r"\b[a-zA-Z0-9]+\b", query.lower()) if w not in stopwords and len(w) >= 3]
+    if not q_tokens:
+        return query.lower().strip() in description.lower()
+
+    desc_clean = description.lower()
+    desc_tokens = set(re.findall(r"\b[a-zA-Z0-9]+\b", desc_clean))
+    desc_stems = {w.rstrip("s") for w in desc_tokens}
+
+    # Regional / distinct prefix tokens that must match if present in query
+    regional_anchors = {
+        "mysore", "mangalore", "mangaluru", "dharwad", "maddur", "udupi",
+        "karnataka", "bangalore", "bengaluru", "donne", "ragi", "jolada",
+        "akki", "chitranna", "holige", "obbattu", "kesari", "bisi", "bele"
+    }
+    has_anchor = any(t in regional_anchors for t in q_tokens)
+    if has_anchor:
+        anchor_matches = any(t in desc_tokens or t in desc_stems for t in q_tokens if t in regional_anchors)
+        if not anchor_matches:
+            return False
+
+    overlap = [t for t in q_tokens if t in desc_tokens or t.rstrip("s") in desc_stems]
+    overlap_ratio = len(overlap) / len(q_tokens)
+    return overlap_ratio >= 0.5
+
+
 async def search_food(query: str, page_size: int = 5) -> List[FoodSearchResult]:
     """Search for foods matching query across Local DB and USDA FoodData Central with caching."""
     q_clean = query.strip().lower()
@@ -114,13 +146,15 @@ async def search_food(query: str, page_size: int = 5) -> List[FoodSearchResult]:
             if response.status_code == 200:
                 data = response.json()
                 for f in data.get("foods", []):
-                    results.append(FoodSearchResult(
-                        fdcId=f.get("fdcId", 0),
-                        description=f.get("description", ""),
-                        food_category=f.get("foodCategory"),
-                        brand_owner=f.get("brandOwner"),
-                        score=f.get("score"),
-                    ))
+                    desc = f.get("description", "")
+                    if _is_usda_result_relevant(query, desc):
+                        results.append(FoodSearchResult(
+                            fdcId=f.get("fdcId", 0),
+                            description=desc,
+                            food_category=f.get("foodCategory"),
+                            brand_owner=f.get("brandOwner"),
+                            score=f.get("score"),
+                        ))
     except Exception as e:
         logger.warning(f"USDA search API query encountered issue: {e}")
 

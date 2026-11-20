@@ -59,6 +59,17 @@ class GeminiVisionFallback(BaseModel):
     error: Optional[str] = None
 
 
+class TimingBreakdown(BaseModel):
+    total_ms: float
+    preprocessing_ms: Optional[float] = None
+    classification_ms: Optional[float] = None
+    fallback_ms: Optional[float] = None
+    nutrition_retrieval_ms: Optional[float] = None
+    rag_ms: Optional[float] = None
+    llm_generation_ms: Optional[float] = None
+    time_to_first_token_ms: Optional[float] = None
+
+
 class AnalyzeImageResponse(BaseModel):
     classification: ClassificationResult
     nutrition: Optional[NutritionData] = None
@@ -69,6 +80,8 @@ class AnalyzeImageResponse(BaseModel):
     is_food: bool = True
     health_safety: Optional['HealthSafetyReport'] = None
     plate_analysis: Optional['MealPlateAnalysis'] = None
+    timing: Optional[TimingBreakdown] = None
+    latency_ms: Optional[float] = None
 
 
 class ConditionEvaluation(BaseModel):
@@ -129,6 +142,8 @@ class MealPlateAnalysis(BaseModel):
     health_safety: Optional[HealthSafetyReport] = None
     visual_summary: Optional[str] = None
     source: str = "Gemma 3 Multimodal Vision + ICMR-NIN/USDA Database"
+    timing: Optional[TimingBreakdown] = None
+    latency_ms: Optional[float] = None
 
 
 class ProductInfo(BaseModel):
@@ -161,6 +176,8 @@ class ChatResponse(BaseModel):
     sources: List[str] = Field(default_factory=list)
     evidence_used: bool = False
     warning: Optional[str] = None
+    timing: Optional[TimingBreakdown] = None
+    latency_ms: Optional[float] = None
 
 
 class FoodSearchResult(BaseModel):
@@ -182,3 +199,5 @@ class CompareResponse(BaseModel):
     basis: str = "per 100g"
     comparison_notes: Optional[str] = None
     ai_summary: Optional[str] = None
+    timing: Optional[TimingBreakdown] = None
+    latency_ms: Optional[float] = None

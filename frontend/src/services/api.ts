@@ -10,6 +10,7 @@ import type {
   ConditionItem,
   HealthSafetyReport,
   MealPlateAnalysis,
+  TimingBreakdown,
 } from '../types'
 
 const API = axios.create({
@@ -140,7 +141,7 @@ export interface StreamChatCallbacks {
   onToken: (token: string) => void
   onMeta?: (meta: { sources: string[]; evidence_used: boolean }) => void
   onError?: (error: string) => void
-  onDone?: () => void
+  onDone?: (timing?: TimingBreakdown) => void
 }
 
 export const streamChat = async (
@@ -174,6 +175,8 @@ export const streamChat = async (
   const decoder = new TextDecoder()
   let buffer = ''
 
+  let finalTiming: TimingBreakdown | undefined = undefined
+
   while (true) {
     const { done, value } = await reader.read()
     if (done) break
@@ -197,7 +200,10 @@ export const streamChat = async (
           } else if (parsed.event === 'error') {
             callbacks?.onError?.(parsed.error || 'Streaming error')
           } else if (parsed.event === 'done') {
-            callbacks?.onDone?.()
+            if (parsed.timing) {
+              finalTiming = parsed.timing
+            }
+            callbacks?.onDone?.(parsed.timing)
           }
         } catch {
           // ignore unparseable chunk
@@ -205,7 +211,7 @@ export const streamChat = async (
       }
     }
   }
-  callbacks?.onDone?.()
+  callbacks?.onDone?.(finalTiming)
 }
 
 export const compareFoods = async (
@@ -218,5 +224,39 @@ export const compareFoods = async (
 
 export const healthCheck = async () => {
   const { data } = await API.get('/api/health')
+  return data
+}
+
+export interface HallucinationEvaluationResponse {
+  timestamp: string
+  total_cases_evaluated: number
+  metrics: {
+    faithfulness_rate_pct: number
+    unsupported_claim_rate_pct: number
+    contradiction_rate_pct: number
+    correct_abstention_rate_pct: number
+    average_response_latency_ms: number
+  }
+  category_breakdown: Record<string, {
+    count: number
+    faithful_count: number
+    faithfulness_rate_pct: number
+  }>
+  detailed_results?: Array<{
+    id: string
+    category: string
+    query: string
+    answer: string
+    latency_ms: number
+    is_faithful: boolean
+    is_unsupported: boolean
+    is_contradiction: boolean
+    is_abstention_success: boolean
+    notes: string
+  }>
+}
+
+export const getHallucinationEvaluation = async (): Promise<HallucinationEvaluationResponse> => {
+  const { data } = await API.get<HallucinationEvaluationResponse>('/api/evaluation/hallucination')
   return data
 }

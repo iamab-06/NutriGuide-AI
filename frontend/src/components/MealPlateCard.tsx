@@ -90,6 +90,14 @@ export default function MealPlateCard({ analysis }: Props) {
             </p>
           )}
 
+          {analysis.latency_ms && (
+            <div className="mt-3 flex items-center gap-1.5 text-xs text-emerald-200/90 font-mono">
+              <span className="bg-white/10 px-2 py-0.5 rounded">
+                ⏱️ Decomposition Latency: {analysis.latency_ms > 1000 ? `${(analysis.latency_ms / 1000).toFixed(2)}s` : `${analysis.latency_ms.toFixed(0)}ms`}
+              </span>
+            </div>
+          )}
+
           {/* Aggregated Macro Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 mt-5">
             <div className="bg-white/10 rounded-xl p-3 backdrop-blur-xs">

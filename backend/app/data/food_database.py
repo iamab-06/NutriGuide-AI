@@ -22,6 +22,252 @@ DB_PATH = Path(__file__).parent / "curated_foods.db"
 
 # Master list of curated verified foods
 CURATED_FOOD_RECORDS: List[Dict[str, Any]] = [
+    # ------------------ KARNATAKA TRADITIONAL & REGIONAL FOODS ------------------
+    {
+        "id": "bisi_bele_bath",
+        "canonical_name": "Bisi Bele Bath (Karnataka Spiced Lentil & Rice Stew)",
+        "aliases": [
+            "bisi bele bath", "bisibelebath", "bisi bele huliyanna",
+            "bisi bele bhat", "bisibele bhath", "karnataka bisi bele bath",
+            "bisi bele bath with vegetables", "bisibele bhat", "bisi bele baath"
+        ],
+        "category": "Karnataka Rice Dishes",
+        "default_portion_g": 250.0,
+        "portion_label": "per standard bowl (≈250g)",
+        "calories": 135.0, "protein": 4.2, "carbohydrates": 21.8, "fat": 3.6,
+        "sugar": 1.5, "fiber": 2.8, "sodium": 340.0, "cholesterol": 4.0, "saturated_fat": 1.4,
+        "source": "ICMR-NIN IFCT 2017 & Traditional Recipe Analysis", "source_id": "KA-IFCT-001", "verification_status": "verified_standard"
+    },
+    {
+        "id": "ragi_mudde",
+        "canonical_name": "Ragi Mudde (Steamed Finger Millet Ball)",
+        "aliases": [
+            "ragi mudde", "ragi ball", "ragi muddhe", "ragi kali",
+            "finger millet mudde", "karnataka ragi mudde", "ragi sangati",
+            "finger millet ball"
+        ],
+        "category": "Karnataka Staples",
+        "default_portion_g": 200.0,
+        "portion_label": "per medium mudde (≈200g)",
+        "calories": 122.0, "protein": 2.6, "carbohydrates": 25.4, "fat": 0.6,
+        "sugar": 0.2, "fiber": 4.2, "sodium": 110.0, "cholesterol": 0.0, "saturated_fat": 0.1,
+        "source": "ICMR-NIN IFCT 2017 (Eleusine coracana / Cooked Ragi)", "source_id": "KA-IFCT-002", "verification_status": "verified_standard"
+    },
+    {
+        "id": "akki_rotti",
+        "canonical_name": "Akki Rotti (Karnataka Rice Flour Flatbread)",
+        "aliases": [
+            "akki rotti", "akki roti", "rice rotti", "rice roti",
+            "karnataka akki rotti", "chilli akki rotti", "onion akki rotti",
+            "spiced rice flatbread"
+        ],
+        "category": "Karnataka Breads",
+        "default_portion_g": 75.0,
+        "portion_label": "per medium rotti (≈75g)",
+        "calories": 186.0, "protein": 3.2, "carbohydrates": 34.8, "fat": 3.6,
+        "sugar": 0.8, "fiber": 2.1, "sodium": 260.0, "cholesterol": 0.0, "saturated_fat": 0.7,
+        "source": "ICMR-NIN IFCT 2017 & Regional Recipe Analysis", "source_id": "KA-IFCT-003", "verification_status": "verified_standard"
+    },
+    {
+        "id": "jolada_rotti",
+        "canonical_name": "Jolada Rotti (North Karnataka Jowar / Sorghum Flatbread)",
+        "aliases": [
+            "jolada rotti", "jolada roti", "jowar rotti", "jowar roti",
+            "sorghum roti", "north karnataka jolada rotti", "jawari roti",
+            "sorghum flatbread"
+        ],
+        "category": "Karnataka Breads",
+        "default_portion_g": 50.0,
+        "portion_label": "per rotti (≈50g)",
+        "calories": 228.0, "protein": 6.1, "carbohydrates": 46.5, "fat": 1.2,
+        "sugar": 0.5, "fiber": 6.4, "sodium": 140.0, "cholesterol": 0.0, "saturated_fat": 0.3,
+        "source": "ICMR-NIN IFCT 2017 (Sorghum bicolor)", "source_id": "KA-IFCT-004", "verification_status": "verified_standard"
+    },
+    {
+        "id": "mysore_pak",
+        "canonical_name": "Mysore Pak (Traditional Karnataka Ghee & Besan Sweet)",
+        "aliases": [
+            "mysore pak", "mysur pak", "mysorepak", "mysuru pak",
+            "ghee mysore pak", "mysore paak", "traditional mysore pak"
+        ],
+        "category": "Karnataka Sweets",
+        "default_portion_g": 40.0,
+        "portion_label": "per piece (≈40g)",
+        "calories": 524.0, "protein": 4.8, "carbohydrates": 54.2, "fat": 32.0,
+        "sugar": 45.0, "fiber": 1.6, "sodium": 42.0, "cholesterol": 58.0, "saturated_fat": 19.4,
+        "source": "ICMR-NIN IFCT 2017 Sweetmeats Analysis", "source_id": "KA-IFCT-005", "verification_status": "verified_standard"
+    },
+    {
+        "id": "dharwad_peda",
+        "canonical_name": "Dharwad Peda (Caramelized Milk Sweet)",
+        "aliases": [
+            "dharwad peda", "dharwad pedha", "dharwadi peda", "karnataka peda",
+            "line peda", "babu singh thakur dharwad peda"
+        ],
+        "category": "Karnataka Sweets",
+        "default_portion_g": 30.0,
+        "portion_label": "per peda (≈30g)",
+        "calories": 412.0, "protein": 9.4, "carbohydrates": 56.0, "fat": 16.8,
+        "sugar": 48.5, "fiber": 0.2, "sodium": 95.0, "cholesterol": 42.0, "saturated_fat": 10.5,
+        "source": "ICMR-NIN IFCT 2017 Dairy Sweetmeats", "source_id": "KA-IFCT-006", "verification_status": "verified_standard"
+    },
+    {
+        "id": "maddur_vada",
+        "canonical_name": "Maddur Vada (Crispy Onion & Semolina Snack)",
+        "aliases": [
+            "maddur vada", "maddur vade", "madduru vada", "maddur vadai",
+            "crispy maddur vada", "karnataka maddur vada"
+        ],
+        "category": "Karnataka Snacks",
+        "default_portion_g": 60.0,
+        "portion_label": "per vada (≈60g)",
+        "calories": 334.0, "protein": 5.6, "carbohydrates": 42.2, "fat": 16.0,
+        "sugar": 1.8, "fiber": 2.6, "sodium": 390.0, "cholesterol": 0.0, "saturated_fat": 4.2,
+        "source": "ICMR-NIN IFCT 2017 Snack Composite", "source_id": "KA-IFCT-007", "verification_status": "verified_standard"
+    },
+    {
+        "id": "neer_dosa",
+        "canonical_name": "Neer Dosa (Coastal Karnataka Lacy Rice Crepe)",
+        "aliases": [
+            "neer dosa", "neer dosai", "neer dose", "mangalore neer dosa",
+            "tuluva neer dosa", "water dosa", "soft neer dosa"
+        ],
+        "category": "Karnataka Breakfast",
+        "default_portion_g": 60.0,
+        "portion_label": "per neer dosa (≈60g)",
+        "calories": 138.0, "protein": 2.6, "carbohydrates": 29.2, "fat": 0.9,
+        "sugar": 0.3, "fiber": 1.0, "sodium": 145.0, "cholesterol": 0.0, "saturated_fat": 0.2,
+        "source": "ICMR-NIN IFCT 2017 Coastal Cereals", "source_id": "KA-IFCT-008", "verification_status": "verified_standard"
+    },
+    {
+        "id": "donne_biryani",
+        "canonical_name": "Donne Biryani (Bangalore Military-Style Chicken Biryani)",
+        "aliases": [
+            "donne biryani", "donne biriyani", "bangalore donne biryani",
+            "military donne biryani", "shivaji military hotel biryani",
+            "seeraga samba donne biryani", "karnataka donne biryani"
+        ],
+        "category": "Karnataka Rice Dishes",
+        "default_portion_g": 300.0,
+        "portion_label": "per donne portion (≈300g)",
+        "calories": 176.0, "protein": 9.8, "carbohydrates": 22.5, "fat": 5.2,
+        "sugar": 0.8, "fiber": 1.6, "sodium": 420.0, "cholesterol": 28.0, "saturated_fat": 1.6,
+        "source": "ICMR-NIN IFCT 2017 Poultry Rice Preparations", "source_id": "KA-IFCT-009", "verification_status": "verified_standard"
+    },
+    {
+        "id": "holige_obbattu",
+        "canonical_name": "Holige / Obbattu (Karnataka Sweet Stuffed Flatbread)",
+        "aliases": [
+            "holige", "obbattu", "bele holige", "kayi holige", "bele obbattu",
+            "karnataka puran poli", "holige obbattu", "sweet holige", "paruppu poli"
+        ],
+        "category": "Karnataka Sweets",
+        "default_portion_g": 70.0,
+        "portion_label": "per holige (≈70g)",
+        "calories": 298.0, "protein": 6.4, "carbohydrates": 54.0, "fat": 6.2,
+        "sugar": 28.0, "fiber": 3.4, "sodium": 110.0, "cholesterol": 12.0, "saturated_fat": 3.2,
+        "source": "ICMR-NIN IFCT 2017 Traditional Sweet Preparations", "source_id": "KA-IFCT-010", "verification_status": "verified_standard"
+    },
+    {
+        "id": "rava_idli",
+        "canonical_name": "Rava Idli (Karnataka Steamed Semolina Cake)",
+        "aliases": [
+            "rava idli", "rave idli", "suji idli", "sooji idli",
+            "mtr rava idli", "karnataka rava idli", "roasted rava idli"
+        ],
+        "category": "Karnataka Breakfast",
+        "default_portion_g": 65.0,
+        "portion_label": "per rava idli (≈65g each)",
+        "calories": 164.0, "protein": 4.6, "carbohydrates": 26.8, "fat": 4.2,
+        "sugar": 1.1, "fiber": 1.8, "sodium": 260.0, "cholesterol": 4.0, "saturated_fat": 1.2,
+        "source": "ICMR-NIN IFCT 2017 & MTR Classical Formulation", "source_id": "KA-IFCT-011", "verification_status": "verified_standard"
+    },
+    {
+        "id": "kesari_bath",
+        "canonical_name": "Kesari Bath (Karnataka Saffron Semolina Halwa)",
+        "aliases": [
+            "kesari bath", "kesaribath", "rava kesari", "kesari baath",
+            "chow chow bath kesari", "karnataka kesari bath", "kesari halwa"
+        ],
+        "category": "Karnataka Sweets",
+        "default_portion_g": 100.0,
+        "portion_label": "per serving (≈100g)",
+        "calories": 326.0, "protein": 3.4, "carbohydrates": 52.0, "fat": 11.5,
+        "sugar": 36.0, "fiber": 1.2, "sodium": 35.0, "cholesterol": 24.0, "saturated_fat": 6.8,
+        "source": "ICMR-NIN IFCT 2017 Traditional Cereal Sweets", "source_id": "KA-IFCT-012", "verification_status": "verified_standard"
+    },
+    {
+        "id": "mangalore_buns",
+        "canonical_name": "Mangalore Buns (Sweet Banana Puffed Bread)",
+        "aliases": [
+            "mangalore buns", "mangaluru buns", "banana buns",
+            "mangalore banana buns", "udupi buns", "coastal karnataka buns",
+            "sweet banana buns"
+        ],
+        "category": "Karnataka Snacks",
+        "default_portion_g": 70.0,
+        "portion_label": "per bun (≈70g)",
+        "calories": 315.0, "protein": 5.2, "carbohydrates": 46.4, "fat": 12.0,
+        "sugar": 14.5, "fiber": 2.4, "sodium": 210.0, "cholesterol": 2.0, "saturated_fat": 3.0,
+        "source": "ICMR-NIN IFCT 2017 Coastal Bakery & Snacks", "source_id": "KA-IFCT-013", "verification_status": "verified_standard"
+    },
+    {
+        "id": "chitranna",
+        "canonical_name": "Chitranna (Karnataka Lemon & Groundnut Rice)",
+        "aliases": [
+            "chitranna", "nimbehannu chitranna", "lemon rice",
+            "karnataka chitranna", "mavinakayi chitranna", "tempered lemon rice"
+        ],
+        "category": "Karnataka Rice Dishes",
+        "default_portion_g": 200.0,
+        "portion_label": "per bowl (≈200g)",
+        "calories": 178.0, "protein": 3.8, "carbohydrates": 29.4, "fat": 4.8,
+        "sugar": 0.6, "fiber": 1.8, "sodium": 320.0, "cholesterol": 0.0, "saturated_fat": 0.9,
+        "source": "ICMR-NIN IFCT 2017 Tempered Rice Dishes", "source_id": "KA-IFCT-014", "verification_status": "verified_standard"
+    },
+    {
+        "id": "karnataka_sambar",
+        "canonical_name": "Karnataka Sambar (Udupi / Mysore Lentil Stew with Coconut & Jaggery)",
+        "aliases": [
+            "karnataka sambar", "karnataka-style sambar", "udupi sambar",
+            "mysore sambar", "karnataka style sambar", "bella sambar",
+            "karnataka lentil stew"
+        ],
+        "category": "Karnataka Curries",
+        "default_portion_g": 150.0,
+        "portion_label": "per bowl (≈150g)",
+        "calories": 78.0, "protein": 3.2, "carbohydrates": 11.8, "fat": 2.1,
+        "sugar": 3.5, "fiber": 2.6, "sodium": 330.0, "cholesterol": 1.0, "saturated_fat": 1.1,
+        "source": "ICMR-NIN IFCT 2017 & Udupi Culinary Standard", "source_id": "KA-IFCT-015", "verification_status": "verified_standard"
+    },
+    {
+        "id": "dosa",
+        "canonical_name": "Dosa (South Indian Fermented Rice & Lentil Crepe)",
+        "aliases": [
+            "dosa", "plain dosa", "sada dosa", "south indian dosa",
+            "crispy dosa", "roast dosa", "dose"
+        ],
+        "category": "South Indian Breakfast",
+        "default_portion_g": 90.0,
+        "portion_label": "per plain dosa (≈90g)",
+        "calories": 168.0, "protein": 3.9, "carbohydrates": 29.4, "fat": 3.7,
+        "sugar": 0.4, "fiber": 1.8, "sodium": 210.0, "cholesterol": 0.0, "saturated_fat": 0.8,
+        "source": "ICMR-NIN IFCT 2017 & Traditional Recipe Analysis", "source_id": "SI-IFCT-016", "verification_status": "verified_standard"
+    },
+    {
+        "id": "upma",
+        "canonical_name": "Upma (South Indian Semolina Breakfast Porridge)",
+        "aliases": [
+            "upma", "rava upma", "sooji upma", "suji upma",
+            "uppittu", "kharabath", "khara bath"
+        ],
+        "category": "South Indian Breakfast",
+        "default_portion_g": 150.0,
+        "portion_label": "per standard bowl (≈150g)",
+        "calories": 156.0, "protein": 3.4, "carbohydrates": 25.2, "fat": 4.5,
+        "sugar": 0.6, "fiber": 2.1, "sodium": 225.0, "cholesterol": 2.0, "saturated_fat": 1.1,
+        "source": "ICMR-NIN IFCT 2017 & Traditional Recipe Analysis", "source_id": "SI-IFCT-017", "verification_status": "verified_standard"
+    },
     # ------------------ INDIAN STAPLES & PREPARED DISHES ------------------
     {
         "id": "roti_chapati",
@@ -632,32 +878,101 @@ class LocalFoodDatabase:
         logger.info(f"Initialized LocalFoodDatabase with {len(CURATED_FOOD_RECORDS)} verified records.")
 
     def search_by_term(self, term: str) -> Optional[Dict[str, Any]]:
-        """Finds the best matching food record from local SQLite database."""
-        t_clean = term.strip().lower()
-        if not t_clean:
+        """
+        Finds the best matching food record from local SQLite database using strict multi-tier matching:
+        Tier 1: Exact match on ID, canonical_name, or exact alias (case-insensitive, normalized punctuation).
+        Tier 2: Normalized exact phrase / discrete word sequence match (query contains full alias as words).
+        Tier 3: Token set subset (all tokens of an alias are present in the query).
+        Tier 4: Token overlap with high Jaccard similarity (>= 0.5).
+        """
+        if not term:
             return None
+
+        t_raw = term.strip().lower()
+        if not t_raw:
+            return None
+
+        import re
+        def normalize(s: str) -> str:
+            s = s.lower().replace("_", " ").replace("-", " ")
+            s = re.sub(r"[^\w\s]", "", s)
+            return " ".join(s.split())
+
+        t_norm = normalize(t_raw)
+        t_tokens = set(t_norm.split())
 
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
-
-        # 1. Exact match on ID or canonical name
-        cursor.execute("SELECT * FROM foods WHERE id = ? OR lower(canonical_name) = ?", (t_clean, t_clean))
-        row = cursor.fetchone()
-        if row:
-            conn.close()
-            return dict(row)
-
-        # 2. Check aliases
         cursor.execute("SELECT * FROM foods")
         all_rows = cursor.fetchall()
-        for r in all_rows:
-            aliases = json.loads(r["aliases"])
-            if any(alias == t_clean or (len(t_clean) >= 3 and alias in t_clean) for alias in aliases):
-                conn.close()
-                return dict(r)
-
         conn.close()
+
+        records = []
+        for r in all_rows:
+            r_dict = dict(r)
+            aliases = json.loads(r_dict["aliases"])
+            r_dict["_parsed_aliases"] = aliases
+            r_dict["_norm_id"] = normalize(r_dict["id"])
+            r_dict["_norm_name"] = normalize(r_dict["canonical_name"])
+            r_dict["_norm_aliases"] = [normalize(a) for a in aliases]
+            records.append(r_dict)
+
+        # Tier 1: Exact match across ALL records first
+        for r in records:
+            if t_norm == r["_norm_id"] or t_norm == r["_norm_name"]:
+                return {k: v for k, v in r.items() if not k.startswith("_")}
+            if any(t_norm == a_norm for a_norm in r["_norm_aliases"]):
+                return {k: v for k, v in r.items() if not k.startswith("_")}
+            if t_raw == r["id"].lower() or t_raw == r["canonical_name"].lower():
+                return {k: v for k, v in r.items() if not k.startswith("_")}
+            if any(t_raw == a.lower() for a in r["_parsed_aliases"]):
+                return {k: v for k, v in r.items() if not k.startswith("_")}
+
+        # Tier 2: Exact discrete phrase match in query (query contains full alias as discrete word sequence)
+        tier2_candidates = []
+        for r in records:
+            for a_norm in r["_norm_aliases"]:
+                if len(a_norm) < 3:
+                    continue
+                pattern = r"\b" + re.escape(a_norm) + r"\b"
+                if re.search(pattern, t_norm):
+                    tier2_candidates.append((len(a_norm), len(a_norm.split()), r))
+                    break
+
+        if tier2_candidates:
+            tier2_candidates.sort(key=lambda x: (x[0], x[1]), reverse=True)
+            return {k: v for k, v in tier2_candidates[0][2].items() if not k.startswith("_")}
+
+        # Tier 3: Token set subset (all alias tokens are in query tokens)
+        tier3_candidates = []
+        for r in records:
+            for a_norm in r["_norm_aliases"]:
+                a_tokens = set(a_norm.split())
+                if a_tokens and a_tokens.issubset(t_tokens) and len(a_tokens) >= 2:
+                    tier3_candidates.append((len(a_tokens), len(a_norm), r))
+                    break
+
+        if tier3_candidates:
+            tier3_candidates.sort(key=lambda x: (x[0], x[1]), reverse=True)
+            return {k: v for k, v in tier3_candidates[0][2].items() if not k.startswith("_")}
+
+        # Tier 4: Token overlap with high Jaccard similarity (>= 0.5)
+        tier4_candidates = []
+        for r in records:
+            for a_norm in r["_norm_aliases"]:
+                a_tokens = set(a_norm.split())
+                overlap = t_tokens.intersection(a_tokens)
+                if overlap:
+                    jaccard = len(overlap) / len(t_tokens.union(a_tokens))
+                    if jaccard >= 0.5:
+                        tier4_candidates.append((jaccard, len(overlap), r))
+                        break
+
+        if tier4_candidates:
+            tier4_candidates.sort(key=lambda x: (x[0], x[1]), reverse=True)
+            return {k: v for k, v in tier4_candidates[0][2].items() if not k.startswith("_")}
+
         return None
 
     def get_by_id(self, food_id: str) -> Optional[Dict[str, Any]]:

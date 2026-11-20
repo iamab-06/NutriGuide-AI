@@ -24,11 +24,14 @@ async def test_categories_endpoint():
         response = await ac.get("/api/categories")
     assert response.status_code == 200
     data = response.json()
-    assert data["count"] == 20
-    assert len(data["categories"]) == 20
+    assert data["count"] == 37
+    assert len(data["categories"]) == 37
     assert "pizza" in data["categories"]
     assert "hamburger" in data["categories"]
+    assert "ragi_mudde" in data["categories"]
+    assert "akki_rotti" in data["categories"]
     assert data["display_names"]["pizza"] == "Pizza"
+    assert data["display_names"]["ragi_mudde"] == "Ragi Mudde"
     assert data["total_food101_count"] == 101
     assert "apple_pie" in data["all_categories"]
 
