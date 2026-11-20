@@ -7,7 +7,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
-# Install CPU-only PyTorch first (smaller wheel, avoids 2.5 GB CUDA download)
+# Install numpy first to avoid version conflicts
+RUN pip install --no-cache-dir "numpy==2.1.3"
+
+# Install CPU-only PyTorch (smaller wheel, avoids 2.5 GB CUDA download)
 RUN pip install --no-cache-dir \
     --extra-index-url https://download.pytorch.org/whl/cpu \
     torch==2.4.1+cpu \
