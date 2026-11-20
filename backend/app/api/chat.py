@@ -17,7 +17,7 @@ from typing import Optional, Dict, Any, Tuple, List
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 
-from app.services.ollama_service import chat_with_context, stream_chat_with_context
+from app.services.ai_service import chat_with_context, stream_chat_with_context
 from app.services.nutrition import get_nutrition_for_food
 from app.services.validator import validate_and_sanitize_nutrition
 from app.data.food_database import get_local_food_db, CURATED_FOOD_RECORDS

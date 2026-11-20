@@ -5,7 +5,7 @@ from typing import Optional
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from app.services.classifier import get_classifier
 from app.services.nutrition import get_nutrition_for_food
-from app.services.ollama_service import classify_food_with_vision
+from app.services.ai_service import classify_food_with_vision
 from app.services.plate_service import decompose_meal_plate_with_vision
 from app.services.clinical_advisor import evaluate_food_health_safety
 from app.schemas.food import (

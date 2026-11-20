@@ -4,7 +4,7 @@ import logging
 import asyncio
 from fastapi import APIRouter, HTTPException
 from app.services.nutrition import get_nutrition_for_food
-from app.services.ollama_service import chat_with_context
+from app.services.ai_service import chat_with_context
 from app.schemas.food import CompareRequest, CompareResponse, NutritionData, TimingBreakdown
 
 logger = logging.getLogger(__name__)
