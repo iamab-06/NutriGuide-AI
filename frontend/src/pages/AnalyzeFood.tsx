@@ -15,6 +15,7 @@ import {
   Layers,
   Clock,
   Zap,
+  Search,
 } from 'lucide-react'
 import {
   analyzeImage,
@@ -58,6 +59,14 @@ export default function AnalyzeFood() {
     'Spaghetti Bolognese','Spring Rolls','Steak','Sushi','Waffles'
   ])
   const [categoryCount, setCategoryCount] = useState(20)
+  const [showAllCategories, setShowAllCategories] = useState(false)
+  const [categoryFilter, setCategoryFilter] = useState('')
+
+  const displayedCategories = showAllCategories
+    ? categoryFilter.trim()
+      ? allCategories.filter((c) => c.toLowerCase().includes(categoryFilter.toLowerCase()))
+      : allCategories
+    : allCategories.slice(0, 15)
 
   useEffect(() => {
     getCategories()
@@ -200,16 +209,9 @@ export default function AnalyzeFood() {
   }
 
   return (
-    <div className="p-6 lg:p-8 max-w-4xl mx-auto">
-      {/* Header */}
-      {/* Feature 2: Health Profile Condition Selector */}
-      <HealthProfileSelector
-        selectedConditions={selectedConditions}
-        onChange={handleConditionsChange}
-      />
-
+    <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
       {/* Mode Selector Tabs */}
-      <div className="flex bg-gray-100 p-1 rounded-2xl mb-6 shadow-2xs max-w-md">
+      <div className="flex bg-gray-100 p-1 rounded-2xl shadow-2xs max-w-md">
         <button
           type="button"
           onClick={() => switchModeAndReanalyze('single')}
@@ -235,6 +237,12 @@ export default function AnalyzeFood() {
           <span>Meal Plate / Thali Scanner</span>
         </button>
       </div>
+
+      {/* Feature 2: Personal Health & Dietary Profile Selector */}
+      <HealthProfileSelector
+        selectedConditions={selectedConditions}
+        onChange={handleConditionsChange}
+      />
 
       {/* Dropzone */}
       {!result && !plateResult && (
@@ -276,7 +284,7 @@ export default function AnalyzeFood() {
               <p className="text-sm text-gray-400 mt-1">
                 {scanMode === 'plate'
                   ? 'Gemma 3 Vision will decompose each item (Rice, Sambar, Palya, Roti, Curd)'
-                  : 'or click to browse &bull; JPEG, PNG, WebP &bull; max 10 MB'}
+                  : 'or click to browse • JPEG, PNG, WebP • max 10 MB'}
               </p>
             </div>
           </div>
@@ -648,18 +656,70 @@ export default function AnalyzeFood() {
         </div>
       )}
 
-      {/* Supported categories footer */}
-      <div className="mt-8 bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-        <h4 className="font-semibold text-gray-700 mb-3">Supported Food Categories ({categoryCount})</h4>
-        <div className="flex flex-wrap gap-2">
-          {allCategories.map((cat) => (
-            <span key={cat} className="px-3 py-1 bg-[#e8f4ed] text-[#2d6a4f] text-xs font-medium rounded-full">
-              {cat}
+      {/* Supported Food Categories (101) */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div className="flex items-center justify-between mb-3">
+          <h4 className="font-semibold text-gray-700">Supported Food Categories ({categoryCount})</h4>
+          {allCategories.length > 15 && (
+            <span className="text-xs text-gray-400 font-medium">
+              {showAllCategories
+                ? categoryFilter
+                  ? `${displayedCategories.length} matching`
+                  : `All ${categoryCount}`
+                : `15 of ${categoryCount}`}
             </span>
-          ))}
+          )}
         </div>
-        <p className="text-xs text-gray-400 mt-3">
-          ✦ MobileNetV3 Classifier (including Karnataka regional dishes) &bull; Multi-item Indian Thali decomposition via Gemma 3 Vision
+
+        {/* Quick search filter when expanded */}
+        {showAllCategories && (
+          <div className="relative mb-3">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+            <input
+              type="text"
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              placeholder="Filter categories (e.g. Dosa, Pizza, Biryani)..."
+              className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#52b788] transition-all placeholder-gray-400"
+            />
+          </div>
+        )}
+
+        {/* Bounded scrollable pill container */}
+        <div
+          className={`flex flex-wrap gap-2 transition-all ${
+            showAllCategories ? 'max-h-56 overflow-y-auto pr-1.5' : ''
+          }`}
+        >
+          {displayedCategories.length > 0 ? (
+            displayedCategories.map((cat) => (
+              <span
+                key={cat}
+                className="px-3 py-1 bg-[#e8f4ed] text-[#2d6a4f] text-xs font-medium rounded-full flex-shrink-0"
+              >
+                {cat}
+              </span>
+            ))
+          ) : (
+            <p className="text-xs text-gray-400 italic py-2">No matching categories found.</p>
+          )}
+        </div>
+
+        {allCategories.length > 15 && (
+          <button
+            type="button"
+            onClick={() => {
+              setShowAllCategories(!showAllCategories)
+              if (showAllCategories) setCategoryFilter('')
+            }}
+            className="mt-4 text-xs font-semibold text-[#2d6a4f] hover:text-[#1a3d2b] flex items-center gap-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 rounded-md"
+          >
+            {showAllCategories ? 'Show less' : `Show all ${categoryCount} categories`}
+            {showAllCategories ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+          </button>
+        )}
+        <p className="text-xs text-gray-400 mt-4 pt-3 border-t border-gray-100">
+          ✦ MobileNetV3 Classifier (including Karnataka regional dishes) • Multi-item Indian Thali decomposition via Gemma 3 Vision
         </p>
       </div>
     </div>

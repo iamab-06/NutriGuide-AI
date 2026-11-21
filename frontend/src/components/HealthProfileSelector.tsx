@@ -98,6 +98,7 @@ export default function HealthProfileSelector({ selectedConditions, onChange }: 
     onChange(next)
     try {
       localStorage.setItem('nutriguide_active_conditions', JSON.stringify(next))
+      window.dispatchEvent(new Event('nutriguide_conditions_changed'))
     } catch {
       // ignore
     }
@@ -125,7 +126,7 @@ export default function HealthProfileSelector({ selectedConditions, onChange }: 
   }
 
   return (
-    <div className="bg-white border border-gray-200/80 rounded-2xl shadow-xs overflow-hidden mb-6 transition-all">
+    <div className="bg-white border border-gray-200/80 rounded-2xl shadow-xs overflow-hidden transition-all">
       {/* Header bar */}
       <div
         onClick={() => setIsOpen(!isOpen)}

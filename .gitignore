@@ -35,6 +35,7 @@ datasets/
 generate_documentation.py
 NutriGuide_AI_Complete_Documentation.docx
 DOCUMENTATION_SUMMARY.md
+*.pdf
 
 # Debug / scratch artifacts
 backend/debug_crops/

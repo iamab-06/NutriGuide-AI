@@ -67,7 +67,7 @@ export default function Dashboard() {
   }, [])
 
   return (
-    <div className="p-6 lg:p-8 max-w-6xl mx-auto">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       {/* Hero */}
       <div className="bg-gradient-to-br from-[#0d2818] via-[#1a3d2b] to-[#2d6a4f] rounded-3xl p-8 lg:p-12 text-white mb-8 relative overflow-hidden">
         <div className="absolute inset-0 opacity-5">

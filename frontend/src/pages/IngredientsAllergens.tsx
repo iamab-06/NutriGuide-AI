@@ -14,64 +14,80 @@ function AllergenBadge({ tag }: { tag: string }) {
 }
 
 function ProductCard({ product }: { product: ProductInfo }) {
-  return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-      <div className="flex gap-4 p-6">
-        {product.image_url && (
-          <img src={product.image_url} alt={product.product_name || 'Product'} className="w-24 h-24 object-contain rounded-xl flex-shrink-0 bg-gray-50" />
-        )}
-        <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-gray-900 text-lg truncate">{product.product_name || 'Unknown Product'}</h3>
-          {product.brands && <p className="text-sm text-gray-500">{product.brands}</p>}
-          {product.barcode && <p className="text-xs text-gray-400 mt-1">Barcode: {product.barcode}</p>}
-        </div>
-      </div>
+  const [imgError, setImgError] = useState(false)
+  const hasValidImage = product.image_url && !imgError
 
-      {/* Allergens */}
-      <div className="px-6 pb-4">
-        <div className="flex items-center gap-2 mb-3">
-          <ShieldAlert className="w-4 h-4 text-red-500" />
-          <h4 className="font-semibold text-gray-800">Allergen Information</h4>
-        </div>
-        {product.allergens_tags.length > 0 ? (
-          <div className="flex flex-wrap gap-2 mb-2">
-            {product.allergens_tags.map(tag => <AllergenBadge key={tag} tag={tag} />)}
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col justify-between">
+      <div>
+        <div className="flex gap-4 p-6">
+          {hasValidImage ? (
+            <img
+              src={product.image_url!}
+              alt={product.product_name || 'Product'}
+              onError={() => setImgError(true)}
+              className="w-24 h-24 object-contain rounded-xl flex-shrink-0 bg-gray-50 border border-gray-100 p-1"
+            />
+          ) : (
+            <div className="w-24 h-24 bg-emerald-50/70 border border-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Package className="w-9 h-9 text-emerald-600/70" />
+            </div>
+          )}
+          <div className="flex-1 min-w-0">
+            <h3 className="font-bold text-gray-900 text-lg truncate">{product.product_name || 'Unknown Product'}</h3>
+            {product.brands && <p className="text-sm text-gray-500">{product.brands}</p>}
+            {product.barcode && <p className="text-xs text-gray-400 mt-1">Barcode: {product.barcode}</p>}
           </div>
-        ) : (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3 flex items-start gap-2">
-            <AlertTriangle className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-yellow-700">
-              No allergens declared in database. <strong>This does NOT confirm the product is allergen-free.</strong>
-              Always check the physical product label.
+        </div>
+
+        {/* Allergens */}
+        <div className="px-6 pb-4">
+          <div className="flex items-center gap-2 mb-3">
+            <ShieldAlert className="w-4 h-4 text-red-500" />
+            <h4 className="font-semibold text-gray-800">Allergen Information</h4>
+          </div>
+          {product.allergens_tags.length > 0 ? (
+            <div className="flex flex-wrap gap-2 mb-2">
+              {product.allergens_tags.map((tag) => (
+                <AllergenBadge key={tag} tag={tag} />
+              ))}
+            </div>
+          ) : (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3 flex items-start gap-2">
+              <AlertTriangle className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-yellow-700">
+                No allergens declared in database. <strong>This does NOT confirm the product is allergen-free.</strong>
+                Always check the physical product label.
+              </p>
+            </div>
+          )}
+          {product.allergens && (
+            <p className="text-sm text-gray-600 mt-2"><strong>Declared:</strong> {product.allergens}</p>
+          )}
+        </div>
+
+        {/* Ingredients */}
+        {product.ingredients_text && (
+          <div className="px-6 pb-4">
+            <h4 className="font-semibold text-gray-800 mb-2">Ingredients</h4>
+            <p className="text-sm text-gray-600 leading-relaxed bg-gray-50 rounded-xl p-3">
+              {product.ingredients_text}
             </p>
           </div>
         )}
-        {product.allergens && (
-          <p className="text-sm text-gray-600 mt-2"><strong>Declared:</strong> {product.allergens}</p>
+
+        {/* Missing data warning */}
+        {product.missing_fields.length > 0 && (
+          <div className="mx-6 mb-4 bg-orange-50 border border-orange-200 rounded-xl p-3 flex items-start gap-2">
+            <AlertTriangle className="w-4 h-4 text-orange-500 flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-orange-700">
+              Missing from database: {product.missing_fields.join(', ')}. Check the physical product.
+            </p>
+          </div>
         )}
       </div>
 
-      {/* Ingredients */}
-      {product.ingredients_text && (
-        <div className="px-6 pb-4">
-          <h4 className="font-semibold text-gray-800 mb-2">Ingredients</h4>
-          <p className="text-sm text-gray-600 leading-relaxed bg-gray-50 rounded-xl p-3">
-            {product.ingredients_text}
-          </p>
-        </div>
-      )}
-
-      {/* Missing data warning */}
-      {product.missing_fields.length > 0 && (
-        <div className="mx-6 mb-4 bg-orange-50 border border-orange-200 rounded-xl p-3 flex items-start gap-2">
-          <AlertTriangle className="w-4 h-4 text-orange-500 flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-orange-700">
-            Missing from database: {product.missing_fields.join(', ')}. Check the physical product.
-          </p>
-        </div>
-      )}
-
-      <div className="px-6 pb-4">
+      <div className="px-6 py-3 bg-gray-50/70 border-t border-gray-100">
         <p className="text-xs text-gray-400">Source: {product.source}</p>
       </div>
     </div>
@@ -95,7 +111,7 @@ export default function IngredientsAllergens() {
     setProducts([])
     setSearched(true)
     try {
-      const results = await searchProducts(query.trim(), 5)
+      const results = await searchProducts(query.trim(), 6)
       if (results.length === 0) setError(`No products found for "${query}".`)
       else setProducts(results)
     } catch (e: unknown) {
@@ -123,70 +139,94 @@ export default function IngredientsAllergens() {
   }
 
   return (
-    <div className="p-6 lg:p-8 max-w-4xl mx-auto">
-      {/* Tabs */}
-      <div className="flex gap-2 mb-6">
-        {(['name', 'barcode'] as const).map((t) => (
-          <button
-            key={t}
-            onClick={() => { setTab(t); setProducts([]); setError(null); setSearched(false) }}
-            className={`px-5 py-2.5 rounded-xl font-medium text-sm transition-all ${
-              tab === t ? 'bg-[#2d6a4f] text-white shadow-sm' : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
-            }`}
-          >
-            {t === 'name' ? 'Search by Name' : 'Search by Barcode'}
-          </button>
-        ))}
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      {/* Search Header Container - Centered */}
+      <div className="max-w-3xl mx-auto mb-6">
+        {/* Tabs */}
+        <div className="flex gap-2 mb-4">
+          {(['name', 'barcode'] as const).map((t) => (
+            <button
+              key={t}
+              onClick={() => { setTab(t); setProducts([]); setError(null); setSearched(false) }}
+              className={`px-5 py-2.5 rounded-xl font-medium text-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 ${
+                tab === t ? 'bg-[#2d6a4f] text-white shadow-sm' : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
+              }`}
+            >
+              {t === 'name' ? 'Search by Name' : 'Search by Barcode'}
+            </button>
+          ))}
+        </div>
+
+        {/* Search form */}
+        {tab === 'name' ? (
+          <form onSubmit={handleSearchByName} className="flex gap-3">
+            <div className="flex-1 relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Product name (e.g., Nutella, Oreo, Lay's)"
+                className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#52b788] focus:border-transparent transition-all shadow-2xs"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={loading || !query.trim()}
+              className="px-6 py-3 bg-[#2d6a4f] hover:bg-[#1a3d2b] disabled:opacity-50 text-white font-semibold rounded-xl flex items-center gap-2 transition-all shadow-2xs"
+            >
+              {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
+              Search
+            </button>
+          </form>
+        ) : (
+          <form onSubmit={handleSearchByBarcode} className="flex gap-3">
+            <div className="flex-1 relative">
+              <Package className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                value={barcode}
+                onChange={(e) => setBarcode(e.target.value)}
+                placeholder="Enter product barcode (e.g., 3017620422003)"
+                className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#52b788] focus:border-transparent transition-all shadow-2xs"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={loading || !barcode.trim()}
+              className="px-6 py-3 bg-[#2d6a4f] hover:bg-[#1a3d2b] disabled:opacity-50 text-white font-semibold rounded-xl flex items-center gap-2 transition-all shadow-2xs"
+            >
+              {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
+              Lookup
+            </button>
+          </form>
+        )}
       </div>
 
-      {/* Search form */}
-      {tab === 'name' ? (
-        <form onSubmit={handleSearchByName} className="flex gap-3 mb-6">
-          <div className="flex-1 relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <input type="text" value={query} onChange={e => setQuery(e.target.value)}
-              placeholder="Product name (e.g., Nutella, Oreo, Lay's)"
-              className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#52b788] focus:border-transparent"
-            />
-          </div>
-          <button type="submit" disabled={loading || !query.trim()}
-            className="px-6 py-3 bg-[#2d6a4f] hover:bg-[#1a3d2b] disabled:opacity-50 text-white font-semibold rounded-xl flex items-center gap-2">
-            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
-            Search
-          </button>
-        </form>
-      ) : (
-        <form onSubmit={handleSearchByBarcode} className="flex gap-3 mb-6">
-          <div className="flex-1 relative">
-            <Package className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <input type="text" value={barcode} onChange={e => setBarcode(e.target.value)}
-              placeholder="Enter product barcode (e.g., 3017620422003)"
-              className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#52b788] focus:border-transparent"
-            />
-          </div>
-          <button type="submit" disabled={loading || !barcode.trim()}
-            className="px-6 py-3 bg-[#2d6a4f] hover:bg-[#1a3d2b] disabled:opacity-50 text-white font-semibold rounded-xl flex items-center gap-2">
-            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
-            Lookup
-          </button>
-        </form>
+      {error && (
+        <div className="max-w-3xl mx-auto mb-6">
+          <ErrorMessage message={error} />
+        </div>
       )}
 
-      {error && <ErrorMessage message={error} />}
-
       {loading && (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 text-center">
+        <div className="max-w-3xl mx-auto bg-white rounded-2xl border border-gray-100 shadow-sm p-8 text-center mb-6">
           <Loader2 className="w-8 h-8 text-[#2d6a4f] animate-spin mx-auto mb-3" />
           <p className="text-gray-500">Searching Open Food Facts...</p>
         </div>
       )}
 
-      <div className="space-y-4">
-        {products.map((p, i) => <ProductCard key={p.barcode || i} product={p} />)}
-      </div>
+      {/* 2-Column Product Grid */}
+      {products.length > 0 && (
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          {products.map((p, i) => (
+            <ProductCard key={p.barcode || i} product={p} />
+          ))}
+        </div>
+      )}
 
       {!searched && (
-        <div className="bg-[#e8f4ed] rounded-2xl p-8 text-center">
+        <div className="max-w-2xl mx-auto bg-[#e8f4ed] rounded-2xl p-8 text-center mt-4">
           <ShieldAlert className="w-12 h-12 text-[#2d6a4f] mx-auto mb-4" />
           <p className="text-[#2d6a4f] font-semibold">Search for a packaged product</p>
           <p className="text-sm text-[#40916c] mt-2">Try: Nutella, Oreo, Pringles, or enter a barcode</p>

@@ -57,6 +57,79 @@ function CompareRow({ label, unit, value1, value2 }: NutrientCompareRow) {
   )
 }
 
+function MacroComparisonChart({ food1, food2 }: { food1: CompareResponse['food1']; food2: CompareResponse['food2'] }) {
+  const metrics = [
+    { label: 'Calories', unit: 'kcal', val1: food1.calories ?? 0, val2: food2.calories ?? 0 },
+    { label: 'Protein', unit: 'g', val1: food1.protein ?? 0, val2: food2.protein ?? 0 },
+    { label: 'Carbohydrates', unit: 'g', val1: food1.carbohydrates ?? 0, val2: food2.carbohydrates ?? 0 },
+    { label: 'Total Fat', unit: 'g', val1: food1.fat ?? 0, val2: food2.fat ?? 0 },
+  ]
+
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-gray-100 gap-3">
+        <div>
+          <h4 className="font-bold text-gray-900 text-base">Macro Comparison (per 100g)</h4>
+          <p className="text-xs text-gray-500">Visual side-by-side macronutrient distribution</p>
+        </div>
+        <div className="flex items-center gap-4 text-xs font-semibold">
+          <div className="flex items-center gap-2">
+            <span className="w-3 h-3 rounded-full bg-[#2d6a4f]" />
+            <span className="text-gray-700 truncate max-w-[140px]">{food1.food_name}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-3 h-3 rounded-full bg-emerald-400" />
+            <span className="text-gray-700 truncate max-w-[140px]">{food2.food_name}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-4 pt-4">
+        {metrics.map(({ label, unit, val1, val2 }) => {
+          const max = Math.max(val1, val2, 1)
+          const pct1 = Math.round((val1 / max) * 100)
+          const pct2 = Math.round((val2 / max) * 100)
+
+          return (
+            <div key={label} className="space-y-1.5">
+              <div className="flex justify-between items-center text-xs font-semibold text-gray-600">
+                <span>{label}</span>
+                <div className="flex items-center gap-3 font-mono">
+                  <span className="text-[#2d6a4f]">{val1 % 1 === 0 ? val1 : val1.toFixed(1)} {unit}</span>
+                  <span className="text-gray-300">vs</span>
+                  <span className="text-emerald-600">{val2 % 1 === 0 ? val2 : val2.toFixed(1)} {unit}</span>
+                </div>
+              </div>
+
+              {/* Food 1 Bar */}
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-bold text-gray-400 w-12 flex-shrink-0">Food 1</span>
+                <div className="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div
+                    style={{ width: `${pct1}%` }}
+                    className="h-full bg-[#2d6a4f] rounded-full transition-all duration-500"
+                  />
+                </div>
+              </div>
+
+              {/* Food 2 Bar */}
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-bold text-gray-400 w-12 flex-shrink-0">Food 2</span>
+                <div className="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div
+                    style={{ width: `${pct2}%` }}
+                    className="h-full bg-emerald-400 rounded-full transition-all duration-500"
+                  />
+                </div>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 const POPULAR_COMPARISONS = [
   { food1: 'pizza', food2: 'hamburger' },
   { food1: 'chicken curry', food2: 'fried rice' },
@@ -100,7 +173,7 @@ export default function CompareFoods() {
     : []
 
   return (
-    <div className="p-6 lg:p-8 max-w-5xl mx-auto">
+    <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       {/* Input */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
         <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] gap-4 items-end">
@@ -173,6 +246,9 @@ export default function CompareFoods() {
 
       {result && !loading && (
         <div className="space-y-6">
+          {/* Visual Macro Comparison Chart */}
+          <MacroComparisonChart food1={result.food1} food2={result.food2} />
+
           {/* Comparison table */}
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
             <div className="grid grid-cols-[1fr_1fr_1fr] bg-[#0d2818] text-white">
@@ -195,7 +271,7 @@ export default function CompareFoods() {
             </table>
             <div className="px-4 py-3 bg-gray-50 border-t border-gray-100">
               <p className="text-xs text-gray-400">
-                Data from USDA FoodData Central &bull; Basis: {result.basis} &bull;
+                Data from USDA FoodData Central • Basis: {result.basis} •
                 <TrendingUp className="w-3 h-3 inline ml-1 text-green-500" /> = better value for this nutrient
               </p>
             </div>
